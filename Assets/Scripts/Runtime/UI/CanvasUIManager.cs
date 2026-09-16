@@ -821,151 +821,199 @@ public partial class CanvasUIManager : MonoBehaviour
                 }
             }
             
-            // 辅助: 设置图标Outline发光边框 + 呼吸脉冲
-            void SetOutline(int gx, int gy, Color baseColor, int baseThickness, float pulseSpeed, float pulseStrength)
+            // 辅助: 设置图标 Outline 发光边框 + 呼吸脉冲
+            // 统一呼吸风格: 慢 (1.4~2.0 rad/s) + 细 (baseThickness 1~2) + 弱 (pulseStrength 0.35~0.5)
+            void SetOutline(int gx, int gy, Color baseColor, float baseThickness, float pulseSpeed, float pulseStrength)
             {
                 var outline = _mapOutline[gy, gx];
                 if (outline == null) return;
                 float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * pulseSpeed);
-                // alpha 呼吸: baseColor.a 脉动 0.3~1.0
                 float alpha = Mathf.Lerp(baseColor.a * (1f - pulseStrength), baseColor.a, pulse);
                 outline.effectColor = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
-                // 粗细呼吸: baseThickness 脉动 ±1
-                float thick = Mathf.Lerp(baseThickness - pulseStrength * 2f, baseThickness + 1f, pulse);
-                outline.effectDistance = new Vector2(thick, thick);
+                float thick = Mathf.Lerp(baseThickness - pulseStrength, baseThickness + 0.5f, pulse);
+                outline.effectDistance = new Vector2(Mathf.Max(0.5f, thick), Mathf.Max(0.5f, thick));
             }
-            
-            // 2. 渲染出口 — 金绿色边框(仅在发现后显示)
+
+            // === 颜色派生: 主题 Accent + 品类偏移, 让每个楼层都有独特视觉 ===
+            // 地板 L ≈ 0.06~0.09, 墙 L ≈ 0.02~0.04
+            // 底托必须 L ≥ 0.15 才能跳出来 (亮度差 ≥ 0.06)
+            Func<Color, float, Color> DimColor = (c, dim) => new Color(c.r * dim, c.g * dim, c.b * dim, c.a);
+
+            // 统一底托生成 — (主题偏移色, 品类强化色) → 混合 + 提高 alpha 保证对比
+            Func<Color, Color, Color> MakeTint = (themeAccent, category) => {
+                Color mixed = Color.Lerp(themeAccent, category, 0.55f);
+                // 强制 alpha ≥ 0.78, 保证跟地板拉开对比
+                mixed.a = Mathf.Max(mixed.a, 0.78f);
+                // 强制 RGB 最低 0.12 — 避免过暗的楼层底托被地板吞
+                mixed.r = Mathf.Max(mixed.r, 0.12f);
+                mixed.g = Mathf.Max(mixed.g, 0.12f);
+                mixed.b = Mathf.Max(mixed.b, 0.12f);
+                return mixed;
+            };
+
+            // 2. 渲染出口 — (发现后) 金色底托 + 呼吸边框
             Vector2Int exitPos = floorState.exitPos;
             if (exitPos.x >= 0 && exitPos.x < 13 && exitPos.y >= 0 && exitPos.y < 13)
             {
                 bool exitDiscovered = floorState.discovered[exitPos.y, exitPos.x];
-                if (_mapIcon[exitPos.y, exitPos.x] != null)
+                if (exitDiscovered)
                 {
-                    if (exitDiscovered && _mapGlyphToType.TryGetValue("⇧", out var eType) && _mapElementTypeColors.TryGetValue(eType, out var eColor))
+                    // 出口格子底托: 金色 (统一提示色)
+                    var eCellImg = _mapImg[exitPos.y, exitPos.x];
+                    if (eCellImg != null)
+                        eCellImg.color = MakeTint(accentColor, new Color(1f, 0.9f, 0.3f, 0.82f));
+                    // 图标
+                    if (_mapIcon[exitPos.y, exitPos.x] != null && _mapGlyphToType.TryGetValue("⇧", out var eType)
+                        && _mapElementTypeColors.TryGetValue(eType, out var eColor))
                     {
                         _mapIcon[exitPos.y, exitPos.x].sprite = CreateMapElementSprite(eType, eColor);
                         _mapIcon[exitPos.y, exitPos.x].color = Color.white;
                     }
+                    // Outline: 金绿色 + 克制呼吸
+                    Color exitOutline = MakeTint(accentColor, new Color(0.5f, 1f, 0.6f, 0.88f));
+                    SetOutline(exitPos.x, exitPos.y, exitOutline, 2f, 1.6f, 0.4f);
                 }
-                if (exitDiscovered)
-                    SetOutline(exitPos.x, exitPos.y, new Color(0.4f, 1f, 0.55f, 0.9f), 3, 1.8f, 0.6f);
             }
-            
-            // 3. 渲染所有 action (怪物/事件/商店/碎片) — 仅在已发现的格子上显示
+
+            // 3. 渲染所有 action (怪物/事件/商店/碎片) — 统一有格子底托
             if (floorState.actions != null)
             {
                 foreach (var kvp in floorState.actions)
                 {
                     var pos = kvp.Key;
                     var action = kvp.Value;
-                    if (action == null) continue;
-                    if (pos.x < 0 || pos.x >= 13 || pos.y < 0 || pos.y >= 13) continue;
+                    if (action == null || pos.x < 0 || pos.x >= 13 || pos.y < 0 || pos.y >= 13) continue;
                     if (!floorState.discovered[pos.y, pos.x]) continue;
-                    
-                    var cellIcon = _mapIcon[pos.y, pos.x];
+
+                    var cellImg = _mapImg[pos.y, pos.x];     // 格子底托 (覆盖者)
+                    var cellIcon = _mapIcon[pos.y, pos.x];   // 图标 (不变)
                     var cellBadge = _mapBadge[pos.y, pos.x];
-                    
+
                     switch (action.type)
                     {
                         case ExploreActionType.Monster:
-                            if (action.monster != null && !action.consumed)
+                            if (action.monster == null || action.consumed) break;
                             {
                                 bool isBoss = action.monster.isBoss;
                                 bool isElite = action.monster.isElite || action.monster._elite;
                                 bool isStairGuard = action.monster.stairGuard;
-                                if (cellIcon != null)
-                                {
-                                    SetCellIcon(cellIcon, action.monster.id);
-                                }
 
-                                // === 怪物格子加亮色底托色块, 让怪物从暗背景中浮现 ===
-                                var mCellImg = _mapImg[pos.y, pos.x];
-                                if (mCellImg != null)
-                                {
-                                    if (isBoss)
-                                        mCellImg.color = new Color(0.55f, 0.06f, 0.18f, 0.85f);   // Boss: 深红
-                                    else if (isStairGuard)
-                                        mCellImg.color = new Color(0.58f, 0.48f, 0.06f, 0.82f); // 楼梯守卫: 金橙
-                                    else if (isElite)
-                                        mCellImg.color = new Color(0.50f, 0.26f, 0.06f, 0.82f); // 精英: 橙红
-                                    else
-                                        mCellImg.color = new Color(0.48f, 0.10f, 0.15f, 0.82f); // 普通: 暗红
-                                }
+                                SetCellIcon(cellIcon, action.monster.id);
 
-                                // === 边框呼吸发光 ===
+                                // 怪物格子底托: 主题 Accent + 品类偏移 (不再固定红!)
+                                // 保证每层的怪物底托颜色随楼层变化 → 视觉融合
+                                Color tint;
+                                if (isBoss)
+                                    tint = MakeTint(accentColor, new Color(0.95f, 0.10f, 0.28f, 0.88f));
+                                else if (isStairGuard)
+                                    tint = MakeTint(accentColor, new Color(0.60f, 0.50f, 0.08f, 0.84f));
+                                else if (isElite)
+                                    tint = MakeTint(accentColor, new Color(0.55f, 0.28f, 0.08f, 0.84f));
+                                else
+                                    // 普通怪物: 跟主题 Accent 更接近 (40% 品类偏移) — 降低视觉噪声
+                                    tint = Color.Lerp(accentColor, new Color(0.70f, 0.12f, 0.20f, 0.84f), 0.40f);
+                                if (cellImg != null) cellImg.color = tint;
+
+                                // Outline: 跟主题 Accent 联动 + 品类偏移
+                                Color ol; float thickness, speed, strength;
                                 if (isBoss)
                                 {
-                                    SetOutline(pos.x, pos.y, new Color(1f, 0.15f, 0.3f, 0.95f), 3, 4.2f, 0.8f);
+                                    ol = MakeTint(accentColor, new Color(1f, 0.18f, 0.35f, 0.92f));
+                                    thickness = 3f; speed = 2.0f; strength = 0.5f;
                                 }
                                 else if (isElite)
                                 {
-                                    SetOutline(pos.x, pos.y, new Color(1f, 0.55f, 0.15f, 0.85f), 3, 2.5f, 0.6f);
+                                    ol = MakeTint(accentColor, new Color(1f, 0.60f, 0.18f, 0.82f));
+                                    thickness = 2f; speed = 1.8f; strength = 0.4f;
                                 }
                                 else if (isStairGuard)
                                 {
-                                    SetOutline(pos.x, pos.y, new Color(1f, 0.78f, 0.1f, 0.92f), 3, 3.0f, 0.75f);
+                                    ol = MakeTint(accentColor, new Color(1f, 0.82f, 0.12f, 0.88f));
+                                    thickness = 2f; speed = 1.6f; strength = 0.4f;
                                 }
                                 else
                                 {
-                                    // 普通怪物: 加亮红 + 更粗边框 + 更高alpha, 避免在暗紫背景上消失
-                                    SetOutline(pos.x, pos.y, new Color(1f, 0.35f, 0.4f, 0.9f), 3, 2.2f, 0.6f);
+                                    ol = MakeTint(accentColor, new Color(0.90f, 0.30f, 0.38f, 0.78f));
+                                    thickness = 2f; speed = 1.4f; strength = 0.35f;
                                 }
+                                SetOutline(pos.x, pos.y, ol, thickness, speed, strength);
+
+                                // Badge
                                 if (cellBadge != null && (isBoss || isElite || isStairGuard))
                                 {
                                     cellBadge.gameObject.SetActive(true);
                                     if (isBoss)
-                                        cellBadge.sprite = CreateBadgeSprite(BadgeType.BossStar, new Color(1f, 0.3f, 0.6f));
+                                        cellBadge.sprite = CreateBadgeSprite(BadgeType.BossStar, MakeTint(accentColor, new Color(1f, 0.35f, 0.6f, 0.9f)));
                                     else if (isElite)
-                                        cellBadge.sprite = CreateBadgeSprite(BadgeType.Star, new Color(1f, 0.6f, 0.3f));
+                                        cellBadge.sprite = CreateBadgeSprite(BadgeType.Star, MakeTint(accentColor, new Color(1f, 0.65f, 0.3f, 0.9f)));
                                     else
-                                        cellBadge.sprite = CreateBadgeSprite(BadgeType.StairGate, new Color(1f, 0.82f, 0.15f));
+                                        cellBadge.sprite = CreateBadgeSprite(BadgeType.StairGate, MakeTint(accentColor, new Color(1f, 0.85f, 0.15f, 0.9f)));
                                 }
                             }
                             break;
+
                         case ExploreActionType.Event:
-                            if (!action.consumed && cellIcon != null)
+                            if (action.consumed || cellIcon == null) break;
                             {
+                                // 底托 + Outline: 紫蓝色 (神秘事件)
+                                if (cellImg != null)
+                                    cellImg.color = MakeTint(accentColor, new Color(0.55f, 0.28f, 1f, 0.78f));
                                 if (_mapElementTypeColors.TryGetValue(MapElementType.Event, out var eColor))
                                     cellIcon.sprite = CreateMapElementSprite(MapElementType.Event, eColor);
                                 cellIcon.color = Color.white;
-                                SetOutline(pos.x, pos.y, new Color(0.6f, 0.3f, 1f, 0.75f), 2, 1.5f, 0.5f);
+                                Color ol = MakeTint(accentColor, new Color(0.60f, 0.32f, 1f, 0.75f));
+                                SetOutline(pos.x, pos.y, ol, 1.5f, 1.2f, 0.35f);
                             }
                             break;
+
                         case ExploreActionType.Shop:
-                            if (!action.consumed && cellIcon != null)
+                            if (action.consumed || cellIcon == null) break;
                             {
+                                // 底托 + Outline: 金橙色 (交易)
+                                if (cellImg != null)
+                                    cellImg.color = MakeTint(accentColor, new Color(1f, 0.78f, 0.30f, 0.80f));
                                 if (_mapElementTypeColors.TryGetValue(MapElementType.Shop, out var sColor))
                                     cellIcon.sprite = CreateMapElementSprite(MapElementType.Shop, sColor);
                                 cellIcon.color = Color.white;
-                                SetOutline(pos.x, pos.y, new Color(1f, 0.82f, 0.35f, 0.9f), 3, 1.0f, 0.5f);
+                                Color ol = MakeTint(accentColor, new Color(1f, 0.85f, 0.35f, 0.85f));
+                                SetOutline(pos.x, pos.y, ol, 2f, 1.0f, 0.35f);
                             }
                             break;
+
                         case ExploreActionType.Fragment:
-                            if (!action.consumed && cellIcon != null)
+                            if (action.consumed || cellIcon == null) break;
                             {
+                                // 底托 + Outline: 青蓝色 (记忆碎片)
+                                if (cellImg != null)
+                                    cellImg.color = MakeTint(accentColor, new Color(0.28f, 0.85f, 0.95f, 0.78f));
                                 if (_mapElementTypeColors.TryGetValue(MapElementType.Fragment, out var fColor))
                                     cellIcon.sprite = CreateMapElementSprite(MapElementType.Fragment, fColor);
                                 cellIcon.color = Color.white;
-                                SetOutline(pos.x, pos.y, new Color(0.3f, 0.9f, 1f, 0.8f), 2, 2.5f, 0.6f);
+                                Color ol = MakeTint(accentColor, new Color(0.32f, 0.90f, 1f, 0.82f));
+                                SetOutline(pos.x, pos.y, ol, 1.5f, 1.5f, 0.4f);
                             }
                             break;
                     }
                 }
             }
-            
-            // 4. 渲染玩家 — 青绿色粗边框 + 呼吸脉冲 (最粗最亮)
+
+            // 4. 渲染玩家 — 跟 Accent 联动的青绿色 + 克制呼吸 (唯一"亮"的元素, 不抢但必现)
             Vector2Int playerPos = floorState.playerPos;
             if (playerPos.x >= 0 && playerPos.x < 13 && playerPos.y >= 0 && playerPos.y < 13)
             {
-                // 玩家边框: 青绿色,4px粗,100%呼吸强度,1秒周期
-                SetOutline(playerPos.x, playerPos.y, new Color(0f, 1f, 0.85f, 1f), 4, 3.14f, 1.0f);
-                
+                // 玩家格子底托: 主题偏移 + 青绿 (保证在任何楼层都可辨)
+                var pCellImg = _mapImg[playerPos.y, playerPos.x];
+                if (pCellImg != null)
+                    pCellImg.color = MakeTint(accentColor, new Color(0.15f, 1f, 0.85f, 0.82f));
+
+                Color pOutline = MakeTint(accentColor, new Color(0.0f, 1f, 0.85f, 0.92f));
+                SetOutline(playerPos.x, playerPos.y, pOutline, 3f, 2.2f, 0.45f);
+
                 if (_mapIcon[playerPos.y, playerPos.x] != null)
                 {
                     string playerIconId = p.currentFormId == "human" ? "c_" + p.selectedClass : p.currentFormId;
                     SetCellIcon(_mapIcon[playerPos.y, playerPos.x], playerIconId);
-                    _mapIcon[playerPos.y, playerPos.x].color = new Color(1f, 1f, 0.82f, 1f);
+                    _mapIcon[playerPos.y, playerPos.x].color = new Color(1f, 1f, 0.88f, 1f);
                     _mapIcon[playerPos.y, playerPos.x].rectTransform.SetAsLastSibling();
                 }
             }
