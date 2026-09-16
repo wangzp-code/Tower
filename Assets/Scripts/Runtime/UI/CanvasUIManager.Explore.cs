@@ -220,6 +220,42 @@ public partial class CanvasUIManager
                 _mapCellShadow[dataY, dataX].enabled = false;
                 _mapCellShadow[dataY, dataX].effectDistance = new Vector2(1, -1);
                 _mapCellShadow[dataY, dataX].effectColor = new Color(0.03f, 0.02f, 0.10f, 0.7f);
+
+                // Cell Highlight Outline: 墙壁专用右上高光 (立体)
+                var hlOutline = cell.AddComponent<Outline>();
+                hlOutline.effectColor = new Color(1f, 1f, 1f, 0);
+                hlOutline.effectDistance = new Vector2(-0.5f, 0.5f);
+                hlOutline.enabled = false;
+                _mapCellHighlight[dataY, dataX] = hlOutline;
+
+                // Pattern: 地板/墙壁 生物膜纹理层 (Perlin noise, alpha 0.18)
+                var patGo = new GameObject("Pat", typeof(RectTransform), typeof(Image));
+                patGo.transform.SetParent(cell.transform, false);
+                var patRT = patGo.GetComponent<RectTransform>();
+                patRT.anchorMin = Vector2.zero;
+                patRT.anchorMax = Vector2.one;
+                patRT.offsetMin = Vector2.zero;
+                patRT.offsetMax = Vector2.zero;
+                var patImg = patGo.GetComponent<Image>();
+                patImg.color = new Color(1, 1, 1, 0);
+                patImg.raycastTarget = false;
+                _mapPattern[dataY, dataX] = patImg;
+
+                // Icon Glow Ring: scale 1.3x, alpha 0.20 的同色图标 → 悬浮光晕
+                var glowGo = new GameObject("Glow", typeof(RectTransform), typeof(Image));
+                glowGo.transform.SetParent(cell.transform, false);
+                var glowRT = glowGo.GetComponent<RectTransform>();
+                glowRT.anchorMin = new Vector2(-0.15f, -0.15f);
+                glowRT.anchorMax = new Vector2(1.15f, 1.15f);
+                glowRT.offsetMin = Vector2.zero;
+                glowRT.offsetMax = Vector2.zero;
+                glowRT.pivot = new Vector2(0.5f, 0.5f);
+                glowGo.SetActive(false);
+                var glowImg = glowGo.GetComponent<Image>();
+                glowImg.color = new Color(1, 1, 1, 0);
+                glowImg.preserveAspect = true;
+                glowImg.raycastTarget = false;
+                _mapGlow[dataY, dataX] = glowImg;
                 
                 // Icon: 填满格子 + Outline发光边框 (唯一区分手段)
                 var ico = new GameObject("I", typeof(RectTransform), typeof(Image), typeof(Outline));

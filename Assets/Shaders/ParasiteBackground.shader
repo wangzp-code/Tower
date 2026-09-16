@@ -172,9 +172,9 @@ Shader "Game/UI/ParasiteBackground"
                 float particle = 1 - minDist;
                 particle = smoothstep(0.45, 0.90, particle);
 
-                // 整体保留深邃但不吞色 — ×0.92
+                // 整体保留深邃但不吞色 — ×0.95
                 // 粒子呼吸感点缀 ×0.15
-                float3 finalColor = color * 0.92 + _TertiaryColor.rgb * particle * 0.15;
+                float3 finalColor = color * 0.95 + _TertiaryColor.rgb * particle * 0.18;
                 float alpha = tex2D(_MainTex, i.uv).a;
                 return float4(finalColor, alpha);
             }

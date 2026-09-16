@@ -85,9 +85,12 @@ public partial class CanvasUIManager : MonoBehaviour
     Image[,] _mapImg = new Image[13,13];
     Outline[,] _mapCellOutline = new Outline[13,13];
     Shadow[,] _mapCellShadow = new Shadow[13,13];
+    Outline[,] _mapCellHighlight = new Outline[13,13];   // 墙壁右上高光 (立体)
+    Image[,] _mapPattern = new Image[13,13];            // 地板/墙壁纹理层 (生物膜颗粒)
     Text[,] _mapTxt = new Text[13,13];
     Image[,] _mapIcon = new Image[13,13];
     Outline[,] _mapOutline = new Outline[13,13];
+    Image[,] _mapGlow = new Image[13,13];               // 图标光晕层 (scale 1.3x, alpha 0.20)
     Image[,] _mapBadge = new Image[13,13];
     Image[,] _mapFog = new Image[13,13];
     string[,] _mapLastGlyph = new string[13,13];
@@ -775,27 +778,49 @@ public partial class CanvasUIManager : MonoBehaviour
                             _mapCellOutline[y, x].effectDistance = new Vector2(0, 0);
                         if (_mapCellShadow[y, x] != null)
                             _mapCellShadow[y, x].enabled = false;
+                        if (_mapCellHighlight[y, x] != null)
+                            _mapCellHighlight[y, x].enabled = false;
+                        if (_mapPattern[y, x] != null)
+                        {
+                            _mapPattern[y, x].color = new Color(1, 1, 1, 0);
+                            _mapPattern[y, x].sprite = null;
+                        }
+                        if (_mapGlow[y, x] != null)
+                            _mapGlow[y, x].gameObject.SetActive(false);
                     }
                     else if (walkable)
                     {
-                        // 地板: WhiteSprite + FloorTint 纯色染色, Shader 主背景生物膜纹理完整透出
+                        // 地板: FloorTint + 生物膜纹理叠加 + 主题描边
                         if (_mapImg[y, x] != null)
                         {
                             _mapImg[y, x].sprite = WhiteSprite;
                             _mapImg[y, x].color = floorColor;
                         }
-                        // 地板格子描边: 主题 Accent 色 — 清晰但不抢眼
+                        // 地板格子描边: 主题 Accent alpha 0.45 — 清晰网格但不抢眼
                         if (_mapCellOutline[y, x] != null)
                         {
-                            _mapCellOutline[y, x].effectColor = accentColor;
-                            _mapCellOutline[y, x].effectDistance = new Vector2(1.2f, 1.2f);
+                            _mapCellOutline[y, x].effectColor = new Color(accentColor.r, accentColor.g, accentColor.b, 0.45f);
+                            _mapCellOutline[y, x].effectDistance = new Vector2(1.5f, 1.5f);
                         }
                         if (_mapCellShadow[y, x] != null)
                             _mapCellShadow[y, x].enabled = false;
+                        if (_mapCellHighlight[y, x] != null)
+                            _mapCellHighlight[y, x].enabled = false;
+                        // 地板 Pattern: 主题生物膜纹理 alpha 0.18 → 颗粒感 + 角落暗化
+                        if (_mapPattern[y, x] != null)
+                        {
+                            _mapPattern[y, x].sprite = ShaderMaterialManager.Instance != null
+                                ? ShaderMaterialManager.Instance.GetFloorPatternSprite(currentFloor)
+                                : WhiteSprite;
+                            _mapPattern[y, x].color = new Color(1, 1, 1, 0.18f);
+                        }
+                        // Pattern 后先关 Glow — action/player/exit 渲染时再开
+                        if (_mapGlow[y, x] != null)
+                            _mapGlow[y, x].gameObject.SetActive(false);
                     }
                     else
                     {
-                        // 墙壁: 主题 WallTint + Shadow 凹墙立体感
+                        // 墙壁: WallTint + 右下阴影 + 右上高光 (立体) + 暗色生物膜
                         if (_mapImg[y, x] != null)
                         {
                             _mapImg[y, x].sprite = WhiteSprite;
@@ -804,7 +829,7 @@ public partial class CanvasUIManager : MonoBehaviour
                         // 墙壁 Outline 关闭 (连续墙不产生十字线)
                         if (_mapCellOutline[y, x] != null)
                             _mapCellOutline[y, x].effectDistance = new Vector2(0, 0);
-                        // 墙壁 Shadow: 主题 Accent 偏移做凹墙质感 — 明显但不扎眼
+                        // 右下阴影 (凹墙感)
                         if (_mapCellShadow[y, x] != null)
                         {
                             _mapCellShadow[y, x].enabled = true;
@@ -814,6 +839,23 @@ public partial class CanvasUIManager : MonoBehaviour
                                 accentColor.b * 0.3f,
                                 0.55f);
                         }
+                        // 右上高光 (凸墙边) — 白 alpha 0.25, offset (-0.5, +0.5)
+                        if (_mapCellHighlight[y, x] != null)
+                        {
+                            _mapCellHighlight[y, x].enabled = true;
+                            _mapCellHighlight[y, x].effectDistance = new Vector2(-0.5f, 0.5f);
+                            _mapCellHighlight[y, x].effectColor = new Color(1f, 1f, 1f, 0.22f);
+                        }
+                        // 墙壁 Pattern: 同生物膜但更暗 alpha 0.08 — 有颗粒但不抢
+                        if (_mapPattern[y, x] != null)
+                        {
+                            _mapPattern[y, x].sprite = ShaderMaterialManager.Instance != null
+                                ? ShaderMaterialManager.Instance.GetFloorPatternSprite(currentFloor)
+                                : WhiteSprite;
+                            _mapPattern[y, x].color = new Color(1, 1, 1, 0.08f);
+                        }
+                        if (_mapGlow[y, x] != null)
+                            _mapGlow[y, x].gameObject.SetActive(false);
                     }
                     // 重置 cell Outline — 不再需要单块描边 (会造成相邻墙双线)
                     // 注: 上面已按类型分别设置 distance, 这行旧重置注释掉
@@ -831,6 +873,17 @@ public partial class CanvasUIManager : MonoBehaviour
                 outline.effectColor = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
                 float thick = Mathf.Lerp(baseThickness - pulseStrength, baseThickness + 0.5f, pulse);
                 outline.effectDistance = new Vector2(Mathf.Max(0.5f, thick), Mathf.Max(0.5f, thick));
+            }
+
+            // 辅助: 设置图标 Glow Ring — 同 sprite, 1.3x 放大, Outline 色 alpha 0.22
+            void SetGlow(int gx, int gy, Color outlineColor)
+            {
+                var glow = _mapGlow[gy, gx];
+                var icon = _mapIcon[gy, gx];
+                if (glow == null || icon == null || icon.sprite == null) return;
+                glow.gameObject.SetActive(true);
+                glow.sprite = icon.sprite;
+                glow.color = new Color(outlineColor.r, outlineColor.g, outlineColor.b, 0.22f);
             }
 
             // === 颜色派生: 主题 Accent + 品类偏移, 让每个楼层都有独特视觉 ===
@@ -867,6 +920,13 @@ public partial class CanvasUIManager : MonoBehaviour
                     {
                         _mapIcon[exitPos.y, exitPos.x].sprite = CreateMapElementSprite(eType, eColor);
                         _mapIcon[exitPos.y, exitPos.x].color = Color.white;
+                    }
+                    // Exit Glow Ring: 图标放大 1.35x + gold-green alpha 0.22
+                    if (_mapGlow[exitPos.y, exitPos.x] != null && _mapIcon[exitPos.y, exitPos.x] != null)
+                    {
+                        _mapGlow[exitPos.y, exitPos.x].gameObject.SetActive(true);
+                        _mapGlow[exitPos.y, exitPos.x].sprite = _mapIcon[exitPos.y, exitPos.x].sprite;
+                        _mapGlow[exitPos.y, exitPos.x].color = new Color(0.4f, 1f, 0.55f, 0.22f);
                     }
                     // Outline: 金绿色 + 克制呼吸
                     Color exitOutline = MakeTint(accentColor, new Color(0.5f, 1f, 0.6f, 0.88f));
@@ -936,6 +996,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                     thickness = 2f; speed = 1.4f; strength = 0.35f;
                                 }
                                 SetOutline(pos.x, pos.y, ol, thickness, speed, strength);
+                                SetGlow(pos.x, pos.y, ol);
 
                                 // Badge
                                 if (cellBadge != null && (isBoss || isElite || isStairGuard))
@@ -962,6 +1023,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                 cellIcon.color = Color.white;
                                 Color ol = MakeTint(accentColor, new Color(0.60f, 0.32f, 1f, 0.75f));
                                 SetOutline(pos.x, pos.y, ol, 1.5f, 1.2f, 0.35f);
+                                SetGlow(pos.x, pos.y, ol);
                             }
                             break;
 
@@ -976,6 +1038,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                 cellIcon.color = Color.white;
                                 Color ol = MakeTint(accentColor, new Color(1f, 0.85f, 0.35f, 0.85f));
                                 SetOutline(pos.x, pos.y, ol, 2f, 1.0f, 0.35f);
+                                SetGlow(pos.x, pos.y, ol);
                             }
                             break;
 
@@ -990,6 +1053,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                 cellIcon.color = Color.white;
                                 Color ol = MakeTint(accentColor, new Color(0.32f, 0.90f, 1f, 0.82f));
                                 SetOutline(pos.x, pos.y, ol, 1.5f, 1.5f, 0.4f);
+                                SetGlow(pos.x, pos.y, ol);
                             }
                             break;
                     }
@@ -1007,6 +1071,7 @@ public partial class CanvasUIManager : MonoBehaviour
 
                 Color pOutline = MakeTint(accentColor, new Color(0.0f, 1f, 0.85f, 0.92f));
                 SetOutline(playerPos.x, playerPos.y, pOutline, 3f, 2.2f, 0.45f);
+                SetGlow(playerPos.x, playerPos.y, pOutline);
 
                 if (_mapIcon[playerPos.y, playerPos.x] != null)
                 {
