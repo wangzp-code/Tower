@@ -732,6 +732,12 @@ public partial class CanvasUIManager : MonoBehaviour
                     if (floorState.discovered[y, x]) discoveredCount++;
 
             // 1. 渲染 floor/wall 格子底色 + 边框 (一次性区分地板与墙壁)
+            // 主题色提前到循环外 — 整个 SyncExplore 调用内 currentFloor 不变, 主题常量
+            var floorTheme = ShaderMaterialManager.GetFloorTheme(currentFloor);
+            Color floorColor = floorTheme.FloorTint;
+            Color wallColor = floorTheme.WallTint;
+            Color accentColor = floorTheme.Accent;
+
             for (int y = 0; y < 13; y++)
             {
                 for (int x = 0; x < 13; x++)
@@ -757,13 +763,6 @@ public partial class CanvasUIManager : MonoBehaviour
                             : new Color(0.02f, 0.01f, 0.04f, 0.94f);
                         _mapFog[y, x].raycastTarget = false;
                     }
-
-            // 获取当前楼层主题 — 驱动地板/墙壁/描边染色
-            var floorTheme = ShaderMaterialManager.GetFloorTheme(currentFloor);
-            Color floorColor = floorTheme.FloorTint;
-            Color wallColor = floorTheme.WallTint;
-            Color accentColor = floorTheme.Accent;
-            // 不再用 procedural pattern sprite — 纯色 FloorTint 让 Shader 主背景的生物膜纹理完整透出
 
                     if (!discovered)
                     {
