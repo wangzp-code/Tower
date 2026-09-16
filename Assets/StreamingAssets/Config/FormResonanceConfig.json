@@ -1,0 +1,14 @@
+[
+  {"fromAxis":"tank","toAxis":"swift","name":"闪避冲刺","effectType":"shield","value":1,"duration":1,"desc":"下次攻击免伤"},
+  {"fromAxis":"swift","toAxis":"parasite","name":"寄生吸取","effectType":"lifesteal_full","value":1,"duration":1,"desc":"1回合攻击吸血100%"},
+  {"fromAxis":"hunter","toAxis":"tank","name":"重甲突击","effectType":"atk_boost","value":0.5,"duration":1,"desc":"下次攻击+50%伤害"},
+  {"fromAxis":"parasite","toAxis":"toxic","name":"污染波动","effectType":"pollution_damage","value":1,"duration":0,"desc":"对敌造成污染%伤害"},
+  {"fromAxis":"toxic","toAxis":"hunter","name":"毒刃打击","effectType":"poison_dot","value":3,"duration":3,"desc":"3回合毒DOT"},
+  {"fromAxis":"tank","toAxis":"hunter","name":"破甲重击","effectType":"ignore_def","value":0.5,"duration":1,"desc":"下次攻击无视50%DEF"},
+  {"fromAxis":"sentinel","toAxis":"swift","name":"迅雷突袭","effectType":"crit_boost","value":0.3,"duration":2,"desc":"2回合暴击+30%"},
+  {"fromAxis":"swift","toAxis":"toxic","name":"毒雾冲刺","effectType":"poison_dot","value":2,"duration":2,"desc":"2回合毒DOT"},
+  {"fromAxis":"parasite","toAxis":"hunter","name":"猎食本能","effectType":"atk_boost","value":0.3,"duration":2,"desc":"2回合ATK+30%"},
+  {"fromAxis":"toxic","toAxis":"tank","name":"毒甲共生","effectType":"def_boost","value":0.4,"duration":2,"desc":"2回合DEF+40%"},
+  {"fromAxis":"hunter","toAxis":"swift","name":"追击加速","effectType":"double_attack","value":1,"duration":1,"desc":"下回合攻击两次"},
+  {"fromAxis":"sentinel","toAxis":"parasite","name":"守护寄生","effectType":"regen_burst","value":0.15,"duration":0,"desc":"立即回复15%HP"}
+]

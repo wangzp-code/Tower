@@ -1,0 +1,10 @@
+{
+    "baseUrl": "http://127.0.0.1:8888/",
+    "versionFileName": "version.json",
+    "manifestFileName": "manifest.json",
+    "localBundlePath": "Bundles/",
+    "maxDownloadThreads": 3,
+    "checkInterval": 3600,
+    "autoDownloadOnWifiOnly": false,
+    "enabled": true
+}

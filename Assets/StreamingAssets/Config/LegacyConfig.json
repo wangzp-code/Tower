@@ -1,0 +1,14 @@
+[
+  {"id":"legacy_iron_will","name":"钢铁意志","desc":"每局开始时+3防御","triggerHook":"RunStart","effectType":"stat_buff","effectValue":3,"unlockCondition":"death_count>=1","icon":"◈","tier":1},
+  {"id":"legacy_blood_memory","name":"血之记忆","desc":"首次受伤时回复15%HP","triggerHook":"PlayerDamaged","effectType":"heal_percent","effectValue":0.15,"unlockCondition":"possess_count>=2","icon":"♦","tier":1},
+  {"id":"legacy_hunter_instinct","name":"猎手本能","desc":"每局首次击杀+2攻击","triggerHook":"MonsterKill","effectType":"stat_buff","effectValue":2,"unlockCondition":"kill_count>=5","icon":"†","tier":1},
+  {"id":"legacy_parasite_echo","name":"寄生回响","desc":"附身成功率+10%","triggerHook":"PossessStart","effectType":"possess_bonus","effectValue":0.10,"unlockCondition":"possess_count>=5","icon":"★","tier":2},
+  {"id":"legacy_floor_insight","name":"楼层洞察","desc":"进入新楼层时显示怪物位置","triggerHook":"FloorEntered","effectType":"reveal_monsters","effectValue":1,"unlockCondition":"floor_max>=5","icon":"◎","tier":2},
+  {"id":"legacy_pollution_resist","name":"污染抗体","desc":"污染增长-20%","triggerHook":"PollutionChanged","effectType":"pollution_reduce","effectValue":0.20,"unlockCondition":"pollution_max>=50","icon":"☢","tier":2},
+  {"id":"legacy_combat_reflex","name":"战斗反射","desc":"战斗开始时获得1层护盾","triggerHook":"CombatStarted","effectType":"shield","effectValue":1,"unlockCondition":"combat_count>=15","icon":"⚡","tier":2},
+  {"id":"legacy_death_defiance","name":"死亡蔑视","desc":"每局首次致死伤害改为剩1HP","triggerHook":"HostDeath","effectType":"death_save","effectValue":1,"unlockCondition":"death_count>=5","icon":"☠","tier":3},
+  {"id":"legacy_form_mastery","name":"形态精通","desc":"形态切换无冷却","triggerHook":"FormSwitched","effectType":"remove_cooldown","effectValue":1,"unlockCondition":"form_switch>=10","icon":"◇","tier":3},
+  {"id":"legacy_elite_sense","name":"精英感知","desc":"精英怪掉落EP+50%","triggerHook":"EliteKill","effectType":"ep_bonus","effectValue":0.50,"unlockCondition":"elite_kill>=5","icon":"◉","tier":3},
+  {"id":"legacy_corruption_harmony","name":"腐蚀和谐","desc":"污染技能消耗-30%","triggerHook":"PlayerUseSkill","effectType":"skill_cost_reduce","effectValue":0.30,"unlockCondition":"skill_use>=8","icon":"●","tier":3},
+  {"id":"legacy_zero_resonance","name":"零号共鸣","desc":"对Boss伤害+25%","triggerHook":"BossPhaseChange","effectType":"boss_damage_bonus","effectValue":0.25,"unlockCondition":"boss_kill>=1","icon":"※","tier":3}
+]

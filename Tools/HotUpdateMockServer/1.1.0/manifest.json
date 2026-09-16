@@ -1,0 +1,18 @@
+{
+    "version": "1.1.0",
+    "timestamp": 1725408000,
+    "bundles": [
+        {
+            "name": "test_assets.bundle",
+            "size": 74,
+            "hash": "897b11172a7b8bad8859801117c7e9c7",
+            "version": "1.1.0"
+        },
+        {
+            "name": "game_configs.bundle",
+            "size": 75,
+            "hash": "413c2078e136dbb472c4908ab3e99f03",
+            "version": "1.1.0"
+        }
+    ]
+}

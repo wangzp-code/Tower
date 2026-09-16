@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09547656be3d3470b8e07dbec66e2232, type: 3}
+  m_Name: "\u4E0D\u6B7B\u4F20\u8BF4"
+  m_EditorClassIdentifier: 
+  achievementId: no_death
+  name: "\u4E0D\u6B7B\u4F20\u8BF4"
+  description: "\u4E0D\u6B7B\u4EA1\u901A\u517325\u5C42"
+  icon: "\U0001F480"
+  type: 4
+  target: 25
+  goldReward: 0
+  bonus:
+    stat: evoPoints
+    value: 100
+    description: "\u8D77\u59CB\u8FDB\u5316\u70B9+100"

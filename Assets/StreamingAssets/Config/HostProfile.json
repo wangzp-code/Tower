@@ -1,0 +1,8 @@
+[
+  {"id":"hound_host","name":"变异犬体","classType":"swarm","baseHp":30,"baseAtk":5,"baseDef":2,"traits":["bite","keen_sense"],"desc":"灵活的四足宿主，嗅觉敏锐","icon":"dog"},
+  {"id":"tentacle_host","name":"触手宿体","classType":"blood","baseHp":35,"baseAtk":4,"baseDef":3,"traits":["grab","regen"],"desc":"柔软但坚韧的异变组织体","icon":"tentacle"},
+  {"id":"wraith_host","name":"怨灵宿体","classType":"ghost","baseHp":25,"baseAtk":7,"baseDef":1,"traits":["phase","drain"],"desc":"半实体化的意识形态","icon":"wraith"},
+  {"id":"watcher_host","name":"监视者壳","classType":"mech","baseHp":40,"baseAtk":6,"baseDef":4,"traits":["scan","shield"],"desc":"金属与生物组织融合的监控单元","icon":"watcher"},
+  {"id":"queen_host","name":"虫后体","classType":"swarm","baseHp":50,"baseAtk":8,"baseDef":3,"traits":["summon","poison","hive_mind"],"desc":"统领虫群的核心意识体","icon":"queen"},
+  {"id":"colossus_host","name":"巨像壳","classType":"titan","baseHp":80,"baseAtk":10,"baseDef":8,"traits":["stomp","fortify"],"desc":"由无数残骸融合的巨型载体","icon":"colossus"}
+]

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+GameConfig:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_EditorClassIdentifier: ""
+  startingHp: 100
+  startingAttack: 10
+  startingDefense: 5
+  maxFragmentSlots: 4
+  baseCritChance: 0.15
+  critMultiplier: 1.5
+  defendMultiplier: 2
+  fleeBaseChance: 0.5
+  pollutionGainPerTurn: 2
+  pollutionDecayPerFloor: 5
+  pollutionThreshold: 50
+  burstModeMultiplier: 1.5
+  combo3Bonus: 0.05
+  combo5Bonus: 0.1
+  combo8Bonus: 0.15
+  combo12Bonus: 0.25
+  combo20Bonus: 0.35
+  classicModeFloorCount: 50
+  shortModeFloorCount: 12
+  expeditionModeFloorCount: 20
+  enemyHpScaling: 0.05
+  enemyAttackScaling: 0.05
+  goldScaling: 0.03

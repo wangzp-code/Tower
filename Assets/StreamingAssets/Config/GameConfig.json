@@ -1,0 +1,18 @@
+{
+  "dailyLogin": {
+    "rewards": [10, 15, 20, 25, 30, 35, 45, 55, 70]
+  },
+  "combat": {
+    "baseEpReward": 15,
+    "epPerZone": 20,
+    "epRandomRange": 10,
+    "eliteEpMultiplier": 1.8,
+    "swarmEpBonusL2": 5,
+    "swarmEpBonusL5": 10
+  },
+  "runReport": {
+    "echoDivider": 3,
+    "victoryBonus": 80,
+    "defeatBonus": 20
+  }
+}

@@ -1,0 +1,5 @@
+[
+  {"bossId":"zero_container","phase":1,"hpPercent":1.0,"atk":15,"def":10,"skills":["attack","corrupt"],"dialogue":"你...也是我的一部分...","traits":["regen"]},
+  {"bossId":"zero_container","phase":2,"hpPercent":0.6,"atk":20,"def":8,"skills":["attack","devour","corrupt"],"dialogue":"所有意识...终将回归...","traits":["regen","rage"]},
+  {"bossId":"zero_container","phase":3,"hpPercent":0.3,"atk":28,"def":6,"skills":["attack","devour","corrupt","nova"],"dialogue":"融合吧...这就是你的归宿...","traits":["regen","rage","lifesteal"]}
+]

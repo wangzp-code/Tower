@@ -1,0 +1,112 @@
+fileFormatVersion: 2
+guid: efe61575e409543a698c886bca4a8a4e
+labels:
+- AndroidPlugin
+PluginImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  icon: {instanceID: 0}
+  executionOrder: {}
+  defineConstraints: []
+  isPreloaded: 0
+  isOverridable: 0
+  isEnabled: 1
+  ValidateReferences: 0
+  Data:
+    PluginType: 1
+    Package: 
+    AutoInclude: 1
+    Overridable: 0
+    Enabled: 1
+    Exclude: []
+  PlatformData:
+  - { Name: Android }
+  - { Name: Standalone }
+  - { Name: WebGL }
+  - { Name: iPhone }
+  - { Name: PS4 }
+  - { Name: XboxOne }
+  - { Name: Switch }
+  - { Name: N3DS }
+  - { Name: WiiU }
+  - { Name: AppleTV }
+  - { Name: Facebook }
+  - { Name: Gamestick }
+  - { Name: InstanceID }
+  - { Name: Any }
+  - { Name: Lumin }
+  - { Name: Bynance }
+  - { Name: Qihoo }
+  - { Name: Gamedistribution }
+  - { Name: Mytarget }
+  - { Name: Okra }
+  - { Name: PlayStation5 }
+  - { Name: Stadia }
+  - { Name: Web }
+  - { Name: UnityEditor }
+  - { Name: NoTarget }
+  - { Name: GoogleCloud }
+  - { Name: FacebookInstant }
+  - { Name: Raycast }
+  - { Name: XboxSeries }
+  - { Name: EmbeddedLinux }
+  - { Name: QNX }
+  - { Name: OpenHarmony }
+  - { Name: WindowsStoreApps }
+  - { Name: Store }
+  - { Name: MetaQuest }
+  - { Name: AppleVision }
+  - { Name: Bluetooth }
+  - { Name: WebAssembly }
+  - { Name: NGP }
+  - { Name: GameCoreXboxOne }
+  - { Name: GameCoreXboxSeries }
+  - { Name: GameCoreScarlett }
+  - { Name: XboxGamePass }
+  - { Name: XboxOne }
+  - { Name: Xbox360 }
+  - { Name: PS5Player }
+  - { Name: PS4Player }
+  - { Name: SwitchPlayer }
+  - { Name: Editor }
+  - { Name: GameCore }
+  - { Name: Mobile }
+  - { Name: Console }
+  - { Name: Desktop }
+  - { Name: XR }
+  - { Name: Embedded }
+  - { Name: OpenHarmonyPlayer }
+  - { Name: LinuxPlayer }
+  - { Name: LinuxEditor }
+  - { Name: WebPlayer }
+  - { Name: WebEditor }
+  - { Name: WindowsPlayer }
+  - { Name: WindowsEditor }
+  - { Name: WindowsServerPlayer }
+  - { Name: WindowsServerEditor }
+  - { Name: MacPlayer }
+  - { Name: MacEditor }
+  - { Name: LinuxServerPlayer }
+  - { Name: LinuxServerEditor }
+  - { Name: WebGLPlayer }
+  - { Name: WebGLEditor }
+  - { Name: WSAPlayerX86 }
+  - { Name: WSAPlayerX64 }
+  - { Name: WSAPlayerARM }
+  - { Name: MetroSupportPlayer }
+  - { Name: XboxPlayer }
+  - { Name: XboxEditor }
+  - { Name: Xbox360Player }
+  - { Name: Xbox360Editor }
+  - { Name: XboxOnePlayer }
+  - { Name: XboxOneEditor }
+  - { Name: XboxSeriesPlayer }
+  - { Name: XboxSeriesEditor }
+  - { Name: PS4Player }
+  - { Name: PS4Editor }
+  - { Name: PS5Player }
+  - { Name: PS5Editor }
+  - { Name: SwitchPlayer }
+  - { Name: SwitchEditor }
+  - { Name: StadiaPlayer }
+  - { Name: StadiaEditor }

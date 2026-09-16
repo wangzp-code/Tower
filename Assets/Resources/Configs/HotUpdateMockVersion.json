@@ -1,0 +1,9 @@
+{
+    "version": "1.1.0",
+    "minVersion": "1.0.0",
+    "updateUrl": "http://127.0.0.1:8888/",
+    "downloadUrl": "http://127.0.0.1:8888/",
+    "forceUpdate": false,
+    "releaseNotes": "v1.1.0: 热更新系统测试版本",
+    "timestamp": 1725408000
+}

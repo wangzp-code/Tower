@@ -1,0 +1,12 @@
+[
+  {"id":"evt_survivor","name":"幸存者","desc":"发现一名受伤的研究员，可以选择帮助或忽视","floorMin":2,"floorMax":5,"probability":0.3,"eventType":"choice","rewardType":"ep","rewardValue":30,"icon":"🧑‍🔬","choices":["帮助","忽视"]},
+  {"id":"evt_cache","name":"补给缓存","desc":"发现一个未被污染的补给箱","floorMin":2,"floorMax":6,"probability":0.25,"eventType":"reward","rewardType":"heal","rewardValue":0.3,"icon":"📦","choices":["打开","离开"]},
+  {"id":"evt_pollution_pool","name":"污染池","desc":"一池发光的液体，浸泡可以增强力量但增加污染","floorMin":3,"floorMax":8,"probability":0.2,"eventType":"risk","rewardType":"stat_buff","rewardValue":3,"icon":"☢","choices":["浸泡","绕行"]},
+  {"id":"evt_memory_fragment","name":"记忆碎片","desc":"地上散落着发光的碎片，似乎是某种记忆载体","floorMin":2,"floorMax":10,"probability":0.2,"eventType":"reward","rewardType":"ep","rewardValue":50,"icon":"🧠","choices":["拾取","分析","忽略"]},
+  {"id":"evt_trap_corridor","name":"陷阱走廊","desc":"前方走廊布满了陷阱，可以冒险通过或寻找绕路","floorMin":4,"floorMax":10,"probability":0.2,"eventType":"risk","rewardType":"ep","rewardValue":80,"icon":"⚠","choices":["冲过去","小心绕行"]},
+  {"id":"evt_dark_merchant","name":"暗影商人","desc":"一个神秘的商人出现在角落","floorMin":3,"floorMax":12,"probability":0.15,"eventType":"shop","rewardType":"item","rewardValue":1,"icon":"🎭","choices":["交易","离开"]},
+  {"id":"evt_altar","name":"异变祭坛","desc":"一座散发着奇异光芒的祭坛","floorMin":5,"floorMax":12,"probability":0.15,"eventType":"choice","rewardType":"legacy_progress","rewardValue":1,"icon":"⛩","choices":["祈祷","献祭","离开"]},
+  {"id":"evt_host_remains","name":"宿主残骸","desc":"一具保存完好的宿主遗体，似乎还能附身","floorMin":4,"floorMax":12,"probability":0.15,"eventType":"reward","rewardType":"form","rewardValue":1,"icon":"💀","choices":["附身","汲取","离开"]},
+  {"id":"evt_resonance_gate","name":"共鸣之门","desc":"一扇需要特定污染值才能打开的门","floorMin":6,"floorMax":12,"probability":0.1,"eventType":"challenge","rewardType":"ep","rewardValue":120,"icon":"🚪","choices":["尝试共鸣","强行突破","离开"]},
+  {"id":"evt_zero_whisper","name":"零号低语","desc":"你听到了来自深处的低语...","floorMin":9,"floorMax":12,"probability":0.1,"eventType":"story","rewardType":"pollution_reduce","rewardValue":10,"icon":"🌀","choices":["聆听","抵抗"]}
+]

@@ -1,0 +1,8 @@
+[
+  {"id":"skill_pollution_burst","name":"污染爆发","desc":"对目标造成ATK×1.5伤害，自身污染+8","threshold":30,"cost":8,"cooldown":3,"effectType":"damage","effectValue":1.5,"icon":"💥","tier":1},
+  {"id":"skill_blood_sacrifice","name":"血祭","desc":"消耗20%当前HP，恢复所有技能使用次数","threshold":50,"cost":12,"cooldown":5,"effectType":"refresh_skills","effectValue":0.20,"icon":"🩸","tier":2},
+  {"id":"skill_mutation_devour","name":"异化吞噬","desc":"即杀HP<30%的目标，回复其最大HP的50%，污染+15","threshold":70,"cost":15,"cooldown":4,"effectType":"execute","effectValue":0.30,"icon":"🦷","tier":2},
+  {"id":"skill_corruption_shield","name":"腐蚀护盾","desc":"消耗10污染值，获得等值护盾持续2回合","threshold":40,"cost":10,"cooldown":3,"effectType":"shield","effectValue":1.0,"icon":"🛡","tier":1},
+  {"id":"skill_parasite_link","name":"寄生链接","desc":"吸取目标20%HP转化为自身HP，污染+5","threshold":60,"cost":10,"cooldown":3,"effectType":"lifesteal","effectValue":0.20,"icon":"🔗","tier":2},
+  {"id":"skill_void_nova","name":"虚空新星","desc":"对所有敌人造成ATK×2伤害，自身污染+20","threshold":85,"cost":20,"cooldown":6,"effectType":"aoe_damage","effectValue":2.0,"icon":"🌀","tier":3}
+]
