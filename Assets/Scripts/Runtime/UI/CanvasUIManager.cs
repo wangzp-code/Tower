@@ -2047,7 +2047,7 @@ public partial class CanvasUIManager : MonoBehaviour
                     break;
                 case "pol-badge": case "anchor-bar": case "fslot-0":
                 case "dpad-container": case "dpad":
-                    targetRT = GetGuideTarget(targetId);
+                    targetRT = GetGuideTarget(targetId)?.GetComponent<RectTransform>();
                     break;
             }
         }
@@ -2059,8 +2059,8 @@ public partial class CanvasUIManager : MonoBehaviour
         if (targetRT != null)
         {
             center = GetAnchorCenterInRoot(targetRT);
-            halfW = (targetRT.anchorMax.x - targetRT.anchorMin.x) * 0.5f;
-            halfH = (targetRT.anchorMax.y - targetRT.anchorMin.y) * 0.5f;
+            float halfW = (targetRT.anchorMax.x - targetRT.anchorMin.x) * 0.5f;
+            float halfH = (targetRT.anchorMax.y - targetRT.anchorMin.y) * 0.5f;
             halfW = Mathf.Max(halfW, 0.04f);
             halfH = Mathf.Max(halfH, 0.025f);
             targetHalfW = halfW; targetHalfH = halfH;
