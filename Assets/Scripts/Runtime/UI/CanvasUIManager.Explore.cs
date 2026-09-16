@@ -241,12 +241,13 @@ public partial class CanvasUIManager
                 patImg.raycastTarget = false;
                 _mapPattern[dataY, dataX] = patImg;
 
-                // Icon Glow Ring: scale 1.3x, alpha 0.20 的同色图标 → 悬浮光晕
+                // Icon Glow Ring: scale 1.18x, alpha 0.22 的同色图标 → 悬浮光晕
+                // 紧凑尺寸: anchor -0.08 → 1.08, 避免溢出到邻格造成十字交叉
                 var glowGo = new GameObject("Glow", typeof(RectTransform), typeof(Image));
                 glowGo.transform.SetParent(cell.transform, false);
                 var glowRT = glowGo.GetComponent<RectTransform>();
-                glowRT.anchorMin = new Vector2(-0.15f, -0.15f);
-                glowRT.anchorMax = new Vector2(1.15f, 1.15f);
+                glowRT.anchorMin = new Vector2(-0.08f, -0.08f);
+                glowRT.anchorMax = new Vector2(1.08f, 1.08f);
                 glowRT.offsetMin = Vector2.zero;
                 glowRT.offsetMax = Vector2.zero;
                 glowRT.pivot = new Vector2(0.5f, 0.5f);

@@ -796,11 +796,12 @@ public partial class CanvasUIManager : MonoBehaviour
                             _mapImg[y, x].sprite = WhiteSprite;
                             _mapImg[y, x].color = floorColor;
                         }
-                        // 地板格子描边: 主题 Accent alpha 0.45 — 清晰网格但不抢眼
+                        // 地板格子描边: 贴边 (0,0) 不偏移, 细 (0.5px), alpha 0.28 — 避免十字交叉
+                        // 相邻地板共享一条边 = 重叠 alpha 0.56, 稍粗但不扎眼
                         if (_mapCellOutline[y, x] != null)
                         {
-                            _mapCellOutline[y, x].effectColor = new Color(accentColor.r, accentColor.g, accentColor.b, 0.45f);
-                            _mapCellOutline[y, x].effectDistance = new Vector2(1.5f, 1.5f);
+                            _mapCellOutline[y, x].effectColor = new Color(accentColor.r, accentColor.g, accentColor.b, 0.28f);
+                            _mapCellOutline[y, x].effectDistance = new Vector2(0.5f, 0.5f);
                         }
                         if (_mapCellShadow[y, x] != null)
                             _mapCellShadow[y, x].enabled = false;
@@ -820,39 +821,37 @@ public partial class CanvasUIManager : MonoBehaviour
                     }
                     else
                     {
-                        // 墙壁: WallTint + 右下阴影 + 右上高光 (立体) + 暗色生物膜
+                        // 墙壁: WallTint + 右下阴影 (立体感) + 暗色生物膜
+                        // 墙壁 Outline / Highlight 全部关 — 避免跟地板描边形成十字交叉
                         if (_mapImg[y, x] != null)
                         {
                             _mapImg[y, x].sprite = WhiteSprite;
                             _mapImg[y, x].color = wallColor;
                         }
-                        // 墙壁 Outline 关闭 (连续墙不产生十字线)
+                        // 墙壁 Outline 关闭
                         if (_mapCellOutline[y, x] != null)
                             _mapCellOutline[y, x].effectDistance = new Vector2(0, 0);
+                        // 墙壁 Highlight 关闭 — 避免跟地板 Outline 形成十字
+                        if (_mapCellHighlight[y, x] != null)
+                            _mapCellHighlight[y, x].enabled = false;
                         // 右下阴影 (凹墙感)
                         if (_mapCellShadow[y, x] != null)
                         {
                             _mapCellShadow[y, x].enabled = true;
+                            _mapCellShadow[y, x].effectDistance = new Vector2(1f, -1f);
                             _mapCellShadow[y, x].effectColor = new Color(
-                                accentColor.r * 0.3f,
-                                accentColor.g * 0.3f,
-                                accentColor.b * 0.3f,
-                                0.55f);
+                                accentColor.r * 0.25f,
+                                accentColor.g * 0.25f,
+                                accentColor.b * 0.25f,
+                                0.60f);
                         }
-                        // 右上高光 (凸墙边) — 白 alpha 0.25, offset (-0.5, +0.5)
-                        if (_mapCellHighlight[y, x] != null)
-                        {
-                            _mapCellHighlight[y, x].enabled = true;
-                            _mapCellHighlight[y, x].effectDistance = new Vector2(-0.5f, 0.5f);
-                            _mapCellHighlight[y, x].effectColor = new Color(1f, 1f, 1f, 0.22f);
-                        }
-                        // 墙壁 Pattern: 同生物膜但更暗 alpha 0.08 — 有颗粒但不抢
+                        // 墙壁 Pattern: 生物膜颗粒 alpha 0.12 — 有细节但不抢
                         if (_mapPattern[y, x] != null)
                         {
                             _mapPattern[y, x].sprite = ShaderMaterialManager.Instance != null
                                 ? ShaderMaterialManager.Instance.GetFloorPatternSprite(currentFloor)
                                 : WhiteSprite;
-                            _mapPattern[y, x].color = new Color(1, 1, 1, 0.08f);
+                            _mapPattern[y, x].color = new Color(1, 1, 1, 0.12f);
                         }
                         if (_mapGlow[y, x] != null)
                             _mapGlow[y, x].gameObject.SetActive(false);
