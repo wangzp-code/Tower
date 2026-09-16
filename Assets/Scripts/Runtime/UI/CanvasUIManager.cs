@@ -2011,154 +2011,149 @@ public partial class CanvasUIManager : MonoBehaviour
     void AdjustTutorialPosition(string targetId, string pos)
     {
         HideTutorialArrow();
-        
+
         var tutRT = _eTutGo.GetComponent<RectTransform>();
-        float canvasWidth = Screen.width;
-        float canvasHeight = Screen.height;
-        float tutWidth = canvasWidth * 0.8f;
-        float tutHeight = 80f;
-        
+
+        // === 统一用归一化 anchor 坐标 (0~1), 跟 SoftHint 系统一致 ===
+        // 旧代码混用 targetWorldPos (绝对像素) / WorldToScreenPoint (物理像素) / offsetMin (local)
+        // 三套坐标系 → 气泡和箭头永远对不齐
+        // 现在: 全部相对于 _root (SafeArea, ScreenSpace-Overlay Canvas 的唯一参考系)
+
         if (string.IsNullOrEmpty(targetId))
         {
-            tutRT.anchorMin = new Vector2(0.5f, 0);
-            tutRT.anchorMax = new Vector2(0.5f, 0);
-            tutRT.offsetMin = new Vector2(-tutWidth / 2, canvasHeight * 0.25f);
-            tutRT.offsetMax = new Vector2(tutWidth / 2, canvasHeight * 0.25f + tutHeight);
+            tutRT.anchorMin = new Vector2(0.06f, 0.22f);
+            tutRT.anchorMax = new Vector2(0.94f, 0.27f);
+            tutRT.offsetMin = Vector2.zero;
+            tutRT.offsetMax = Vector2.zero;
             return;
         }
-        
+
+        RectTransform targetRT = null;
         GameObject targetObj = GameObject.Find(targetId);
-        if (targetObj == null)
+        if (targetObj != null)
+            targetRT = targetObj.GetComponent<RectTransform>();
+
+        if (targetRT == null)
         {
             switch(targetId)
             {
-                case "btn-possess-bottom":
-                    targetObj = _cPossBtn?.gameObject;
-                    break;
-                case "btn-defend-bottom":
-                    targetObj = _cDefBtn?.gameObject;
-                    break;
-                case "btn-flee-bottom":
-                    targetObj = _cFleeBtn?.gameObject;
-                    break;
-                case "btn-attack-bottom":
-                    targetObj = _cAtkBtn?.gameObject;
-                    break;
-                case "btn-ultimate":
-                    targetObj = _cUltBtn?.gameObject;
-                    break;
+                case "btn-possess-bottom": targetRT = _cPossBtn?.GetComponent<RectTransform>(); break;
+                case "btn-defend-bottom":  targetRT = _cDefBtn?.GetComponent<RectTransform>();  break;
+                case "btn-flee-bottom":    targetRT = _cFleeBtn?.GetComponent<RectTransform>();    break;
+                case "btn-attack-bottom":  targetRT = _cAtkBtn?.GetComponent<RectTransform>();     break;
+                case "btn-ultimate":       targetRT = _cUltBtn?.GetComponent<RectTransform>();    break;
                 case "btn-menu-icon":
-                    targetObj = _eMenuBtn?.gameObject;
+                    targetRT = _eMenuBtn?.GetComponent<RectTransform>();
                     break;
-                case "pol-badge":
-                    targetObj = GetGuideTarget("pol-badge");
-                    break;
-                case "anchor-bar":
-                    targetObj = GetGuideTarget("anchor-bar");
-                    break;
-                case "fslot-0":
-                    targetObj = GetGuideTarget("fslot-0");
-                    break;
-                case "dpad-container":
-                case "dpad":
-                    targetObj = GetGuideTarget("dpad");
+                case "pol-badge": case "anchor-bar": case "fslot-0":
+                case "dpad-container": case "dpad":
+                    targetRT = GetGuideTarget(targetId);
                     break;
             }
         }
-        
-        if (targetObj != null)
+
+        Vector2 center;
+        float targetHalfH = 0.04f;
+        float targetHalfW = 0.15f;
+
+        if (targetRT != null)
         {
-            var targetRT = targetObj.GetComponent<RectTransform>();
-            if (targetRT != null)
+            center = GetAnchorCenterInRoot(targetRT);
+            halfW = (targetRT.anchorMax.x - targetRT.anchorMin.x) * 0.5f;
+            halfH = (targetRT.anchorMax.y - targetRT.anchorMin.y) * 0.5f;
+            halfW = Mathf.Max(halfW, 0.04f);
+            halfH = Mathf.Max(halfH, 0.025f);
+            targetHalfW = halfW; targetHalfH = halfH;
+        }
+        else
+        {
+            center = GetFallbackButtonCenter(targetId);
+        }
+
+        float bubbleW = 0.88f;
+        float bubbleH = 0.06f;
+        float gap = 0.01f;
+
+        bool flipAbove = (pos == "top");
+        float bottomAnchor, topAnchor;
+        bool arrowDown;
+
+        if (flipAbove)
+        {
+            topAnchor = center.y + targetHalfH + gap;
+            bottomAnchor = topAnchor + bubbleH;
+            if (bottomAnchor > 0.94f)
             {
-                Vector3 targetWorldPos = targetRT.position;
-                Vector2 targetScreenPos = RectTransformUtility.WorldToScreenPoint(Camera.main, targetWorldPos);
-                
-                tutRT.anchorMin = new Vector2(0.5f, 0);
-                tutRT.anchorMax = new Vector2(0.5f, 0);
-                
-                if (pos == "top")
-                {
-                    float targetTop = targetWorldPos.y + targetRT.rect.height / 2;
-                    float yPos = Mathf.Max(canvasHeight * 0.35f, targetTop + 30);
-                    tutRT.offsetMin = new Vector2(-tutWidth / 2, yPos);
-                    tutRT.offsetMax = new Vector2(tutWidth / 2, yPos + tutHeight);
-                    
-                    ShowTutorialArrow(new Vector2(canvasWidth / 2, yPos), new Vector2(targetScreenPos.x, targetTop), false);
-                }
-                else
-                {
-                    float targetBottom = targetWorldPos.y - targetRT.rect.height / 2;
-                    float yPos = Mathf.Min(canvasHeight * 0.6f, targetBottom - tutHeight - 30);
-                    float minYPos = canvasHeight * 0.38f;
-                    if (yPos < minYPos) yPos = minYPos;
-                    tutRT.offsetMin = new Vector2(-tutWidth / 2, yPos);
-                    tutRT.offsetMax = new Vector2(tutWidth / 2, yPos + tutHeight);
-                    
-                    ShowTutorialArrow(new Vector2(canvasWidth / 2, yPos + tutHeight), new Vector2(targetScreenPos.x, targetBottom), true);
-                }
+                bottomAnchor = center.y - targetHalfH - gap;
+                topAnchor = bottomAnchor - bubbleH;
+                arrowDown = true;
+            }
+            else
+            {
+                arrowDown = false;
             }
         }
         else
         {
-            tutRT.anchorMin = new Vector2(0.5f, 0);
-            tutRT.anchorMax = new Vector2(0.5f, 0);
-            float defaultY = pos == "top" ? canvasHeight * 0.7f : canvasHeight * 0.25f;
-            tutRT.offsetMin = new Vector2(-tutWidth / 2, defaultY);
-            tutRT.offsetMax = new Vector2(tutWidth / 2, defaultY + tutHeight);
+            bottomAnchor = center.y - targetHalfH - gap;
+            topAnchor = bottomAnchor - bubbleH;
+            arrowDown = true;
+            if (topAnchor < 0.04f)
+            {
+                bottomAnchor = center.y + targetHalfH + gap;
+                topAnchor = bottomAnchor + bubbleH;
+                arrowDown = false;
+            }
         }
+
+        tutRT.anchorMin = new Vector2((1f - bubbleW) * 0.5f, bottomAnchor);
+        tutRT.anchorMax = new Vector2((1f + bubbleW) * 0.5f, topAnchor);
+        tutRT.offsetMin = Vector2.zero;
+        tutRT.offsetMax = Vector2.zero;
+
+        if (targetRT != null)
+            ShowTutorialArrowNormalized(center, targetHalfH, arrowDown);
     }
-    
+
     GameObject _tutArrow;
-    
-    void ShowTutorialArrow(Vector2 from, Vector2 to, bool arrowDown)
+
+    void ShowTutorialArrowNormalized(Vector2 targetCenter, float targetHalfH, bool arrowDown)
     {
         if (_tutArrow == null)
         {
             _tutArrow = new GameObject("TutorialArrow", typeof(RectTransform), typeof(Image));
-            _tutArrow.transform.SetParent(_canvas.transform, false);
+            _tutArrow.transform.SetParent(_root, false);
             var rt = _tutArrow.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(0, 0);
-            rt.sizeDelta = new Vector2(32, 32);
-            
+            rt.sizeDelta = new Vector2(28, 28);
+
             var img = _tutArrow.GetComponent<Image>();
             img.color = new Color(0f, 1f, 0.816f);
-            
-            // 创建箭头精灵
+
             Texture2D arrowTex = new Texture2D(32, 32);
             Color[] pixels = new Color[32 * 32];
             for (int i = 0; i < pixels.Length; i++) pixels[i] = Color.clear;
-            
-            // 绘制向下箭头
-            int centerX = 16, centerY = 16;
-            for (int i = 0; i <= 8; i++)
+            int cx = 16, cy = 16;
+            for (int i = 0; i <= 9; i++)
             {
-                int x = centerX - i;
-                int y = arrowDown ? centerY + i : centerY - i;
+                int x = cx - i; int y = arrowDown ? cy + i : cy - i;
                 if (x >= 0 && x < 32 && y >= 0 && y < 32) pixels[y * 32 + x] = Color.white;
-                
-                x = centerX + i;
+                x = cx + i;
                 if (x >= 0 && x < 32 && y >= 0 && y < 32) pixels[y * 32 + x] = Color.white;
             }
-            
-            arrowTex.SetPixels(pixels);
-            arrowTex.Apply();
-            
-            Sprite arrowSprite = Sprite.Create(arrowTex, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f));
-            img.sprite = arrowSprite;
-            
-            if (!arrowDown)
-            {
-                _tutArrow.transform.rotation = Quaternion.Euler(0, 0, 180);
-            }
+            arrowTex.SetPixels(pixels); arrowTex.Apply();
+            img.sprite = Sprite.Create(arrowTex, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f));
         }
-        
+
         _tutArrow.SetActive(true);
-        var rt2 = _tutArrow.GetComponent<RectTransform>();
-        rt2.position = from;
+        var art = _tutArrow.GetComponent<RectTransform>();
+        art.anchorMin = new Vector2(targetCenter.x, targetCenter.y);
+        art.anchorMax = new Vector2(targetCenter.x, targetCenter.y);
+        art.pivot = new Vector2(0.5f, arrowDown ? 0f : 1f);
+        art.anchoredPosition = new Vector2(0, arrowDown ? targetHalfH + 4 : -targetHalfH - 4);
     }
-    
+
     void HideTutorialArrow()
     {
         if (_tutArrow != null)
