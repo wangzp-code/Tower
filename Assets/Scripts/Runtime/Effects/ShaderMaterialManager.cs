@@ -30,92 +30,95 @@ public class ShaderMaterialManager : SingletonBase<ShaderMaterialManager>
         public string Name;
     }
 
-    // ===== 视觉 DNA 重构: 神秘感 = 更暗 + 去饱和 + 微弱点缀 =====
-    // Accent alpha 统一 0.18 (仅微弱轮廓提示, 不喧宾夺主)
-    // FloorTint alpha 统一 0.30 (让 Shader 主背景纹理更多透出)
-    // Tert 颜色大幅去饱和暗化 (particle 仅做"呼吸微光"而非荧光闪烁)
+    // ===== 视觉 DNA 重构: 深邃可读 =====
+    // 上一轮 ×0.78 + alpha 0.30 叠暗过头 — 怪物/格子全融了
+    // 现在找回平衡: 背景深邃但格子填充够、描边清晰、怪物品类可辨
+    //   - Shader finalColor ×0.92  (不压暗, 让生物膜纹理自然呈现)
+    //   - FloorTint alpha 0.50      (格子有填充色, 不被背景吞噬)
+    //   - Accent alpha 0.30         (格子轮廓清晰但不抢眼)
+    //   - ParticleDensity 30~55     (呼吸感, 不密集)
 
     // F1 入口通道 — 深青微透 · 冷静的金属感
     static readonly FloorTheme T_F1 = new FloorTheme {
         Main = new Color(0.015f, 0.025f, 0.04f),
-        Sec  = new Color(0.00f, 0.14f, 0.18f),
-        Tert = new Color(0.05f, 0.30f, 0.28f),
-        FloorTint = new Color(0.04f, 0.12f, 0.14f, 0.30f),
+        Sec  = new Color(0.02f, 0.18f, 0.22f),
+        Tert = new Color(0.08f, 0.35f, 0.32f),
+        FloorTint = new Color(0.05f, 0.16f, 0.18f, 0.50f),
         WallTint  = new Color(0.02f, 0.05f, 0.06f, 1.0f),
-        Accent    = new Color(0.2f, 0.7f, 0.65f, 0.18f),
-        Speed = 0.40f, NoiseScale = 7f, ParticleDensity = 25f,
+        Accent    = new Color(0.25f, 0.8f, 0.75f, 0.30f),
+        Speed = 0.42f, NoiseScale = 7f, ParticleDensity = 30f,
         Name = "入口通道"
     };
 
     // F2 生物研究室 — 青蓝深潜 · 暗流涌动
     static readonly FloorTheme T_F2 = new FloorTheme {
         Main = new Color(0.015f, 0.03f, 0.05f),
-        Sec  = new Color(0.02f, 0.16f, 0.26f),
-        Tert = new Color(0.10f, 0.32f, 0.40f),
-        FloorTint = new Color(0.05f, 0.10f, 0.16f, 0.30f),
+        Sec  = new Color(0.04f, 0.22f, 0.34f),
+        Tert = new Color(0.15f, 0.38f, 0.48f),
+        FloorTint = new Color(0.06f, 0.14f, 0.22f, 0.50f),
         WallTint  = new Color(0.03f, 0.04f, 0.08f, 1.0f),
-        Accent    = new Color(0.3f, 0.65f, 0.75f, 0.18f),
-        Speed = 0.48f, NoiseScale = 8f, ParticleDensity = 30f,
+        Accent    = new Color(0.35f, 0.75f, 0.85f, 0.30f),
+        Speed = 0.50f, NoiseScale = 8f, ParticleDensity = 35f,
         Name = "生物研究室"
     };
 
     // F3 变异培养舱 — 紫罗兰低语 · 异样的静谧
     static readonly FloorTheme T_F3 = new FloorTheme {
         Main = new Color(0.02f, 0.012f, 0.05f),
-        Sec  = new Color(0.12f, 0.04f, 0.24f),
-        Tert = new Color(0.30f, 0.15f, 0.40f),
-        FloorTint = new Color(0.07f, 0.04f, 0.14f, 0.30f),
+        Sec  = new Color(0.14f, 0.05f, 0.28f),
+        Tert = new Color(0.35f, 0.18f, 0.48f),
+        FloorTint = new Color(0.09f, 0.05f, 0.18f, 0.50f),
         WallTint  = new Color(0.04f, 0.02f, 0.08f, 1.0f),
-        Accent    = new Color(0.55f, 0.30f, 0.70f, 0.18f),
-        Speed = 0.58f, NoiseScale = 10f, ParticleDensity = 34f,
+        Accent    = new Color(0.65f, 0.38f, 0.80f, 0.30f),
+        Speed = 0.60f, NoiseScale = 10f, ParticleDensity = 40f,
         Name = "变异培养舱"
     };
 
     // F4 神经连接层 — 深紫回路 · 脉动的网络
     static readonly FloorTheme T_F4 = new FloorTheme {
         Main = new Color(0.018f, 0.008f, 0.055f),
-        Sec  = new Color(0.16f, 0.03f, 0.32f),
-        Tert = new Color(0.38f, 0.20f, 0.48f),
-        FloorTint = new Color(0.08f, 0.03f, 0.16f, 0.30f),
+        Sec  = new Color(0.18f, 0.04f, 0.38f),
+        Tert = new Color(0.45f, 0.24f, 0.58f),
+        FloorTint = new Color(0.10f, 0.04f, 0.20f, 0.50f),
         WallTint  = new Color(0.04f, 0.015f, 0.09f, 1.0f),
-        Accent    = new Color(0.60f, 0.35f, 0.75f, 0.18f),
-        Speed = 0.65f, NoiseScale = 11f, ParticleDensity = 38f,
+        Accent    = new Color(0.70f, 0.42f, 0.85f, 0.30f),
+        Speed = 0.68f, NoiseScale = 11f, ParticleDensity = 42f,
         Name = "神经连接层"
     };
 
     // F5 废弃孵化场 — 暗红锈迹 · 被遗忘的温床
     static readonly FloorTheme T_F5 = new FloorTheme {
         Main = new Color(0.03f, 0.008f, 0.015f),
-        Sec  = new Color(0.18f, 0.025f, 0.07f),
-        Tert = new Color(0.42f, 0.12f, 0.18f),
-        FloorTint = new Color(0.11f, 0.03f, 0.05f, 0.30f),
+        Sec  = new Color(0.20f, 0.03f, 0.08f),
+        Tert = new Color(0.50f, 0.15f, 0.22f),
+        FloorTint = new Color(0.14f, 0.04f, 0.06f, 0.50f),
         WallTint  = new Color(0.05f, 0.015f, 0.025f, 1.0f),
-        Accent    = new Color(0.70f, 0.22f, 0.30f, 0.18f),
-        Speed = 0.72f, NoiseScale = 12f, ParticleDensity = 42f,
+        Accent    = new Color(0.80f, 0.28f, 0.38f, 0.30f),
+        Speed = 0.75f, NoiseScale = 12f, ParticleDensity = 45f,
         Name = "废弃孵化场"
     };
 
     // F6 感染核心 — 凝血深红 · 潜伏的心跳
     static readonly FloorTheme T_F6 = new FloorTheme {
         Main = new Color(0.04f, 0.006f, 0.01f),
-        Sec  = new Color(0.24f, 0.02f, 0.04f),
-        Tert = new Color(0.48f, 0.10f, 0.12f),
-        FloorTint = new Color(0.14f, 0.025f, 0.03f, 0.30f),
+        Sec  = new Color(0.28f, 0.025f, 0.05f),
+        Tert = new Color(0.56f, 0.12f, 0.15f),
+        FloorTint = new Color(0.17f, 0.03f, 0.04f, 0.50f),
         WallTint  = new Color(0.06f, 0.01f, 0.02f, 1.0f),
-        Accent    = new Color(0.75f, 0.18f, 0.20f, 0.18f),
-        Speed = 0.80f, NoiseScale = 13f, ParticleDensity = 46f,
+        Accent    = new Color(0.85f, 0.22f, 0.25f, 0.30f),
+        Speed = 0.82f, NoiseScale = 13f, ParticleDensity = 48f,
         Name = "感染核心"
     };
 
     // F7+ 深渊核心 — 纯黑残息 · 最后的微光
     static readonly FloorTheme T_F7p = new FloorTheme {
         Main = new Color(0.05f, 0.00f, 0.005f),
-        Sec  = new Color(0.30f, 0.01f, 0.03f),
-        Tert = new Color(0.55f, 0.06f, 0.08f),
-        FloorTint = new Color(0.16f, 0.02f, 0.02f, 0.30f),
+        Sec  = new Color(0.34f, 0.015f, 0.04f),
+        Tert = new Color(0.65f, 0.08f, 0.10f),
+        FloorTint = new Color(0.20f, 0.03f, 0.03f, 0.50f),
         WallTint  = new Color(0.07f, 0.005f, 0.01f, 1.0f),
-        Accent    = new Color(0.80f, 0.12f, 0.14f, 0.18f),
-        Speed = 0.88f, NoiseScale = 14f, ParticleDensity = 50f,
+        Accent    = new Color(0.90f, 0.15f, 0.18f, 0.30f),
+        Speed = 0.90f, NoiseScale = 14f, ParticleDensity = 55f,
         Name = "深渊核心"
     };
 

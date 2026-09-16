@@ -785,11 +785,11 @@ public partial class CanvasUIManager : MonoBehaviour
                             _mapImg[y, x].sprite = WhiteSprite;
                             _mapImg[y, x].color = floorColor;
                         }
-                        // 地板格子描边: 极弱 — 仅 0.5px 的若隐若现轮廓
+                        // 地板格子描边: 主题 Accent 色 — 清晰但不抢眼
                         if (_mapCellOutline[y, x] != null)
                         {
                             _mapCellOutline[y, x].effectColor = accentColor;
-                            _mapCellOutline[y, x].effectDistance = new Vector2(0.5f, 0.5f);
+                            _mapCellOutline[y, x].effectDistance = new Vector2(1.2f, 1.2f);
                         }
                         if (_mapCellShadow[y, x] != null)
                             _mapCellShadow[y, x].enabled = false;
@@ -805,15 +805,15 @@ public partial class CanvasUIManager : MonoBehaviour
                         // 墙壁 Outline 关闭 (连续墙不产生十字线)
                         if (_mapCellOutline[y, x] != null)
                             _mapCellOutline[y, x].effectDistance = new Vector2(0, 0);
-                        // 墙壁 Shadow: 极暗 Accent 偏移, 若有若无
+                        // 墙壁 Shadow: 主题 Accent 偏移做凹墙质感 — 明显但不扎眼
                         if (_mapCellShadow[y, x] != null)
                         {
                             _mapCellShadow[y, x].enabled = true;
                             _mapCellShadow[y, x].effectColor = new Color(
-                                accentColor.r * 0.25f,
-                                accentColor.g * 0.25f,
-                                accentColor.b * 0.25f,
-                                0.35f);
+                                accentColor.r * 0.3f,
+                                accentColor.g * 0.3f,
+                                accentColor.b * 0.3f,
+                                0.55f);
                         }
                     }
                     // 重置 cell Outline — 不再需要单块描边 (会造成相邻墙双线)
@@ -884,13 +884,13 @@ public partial class CanvasUIManager : MonoBehaviour
                                 if (mCellImg != null)
                                 {
                                     if (isBoss)
-                                        mCellImg.color = new Color(0.5f, 0.05f, 0.15f, 0.7f);   // Boss: 深红
+                                        mCellImg.color = new Color(0.55f, 0.06f, 0.18f, 0.85f);   // Boss: 深红
                                     else if (isStairGuard)
-                                        mCellImg.color = new Color(0.5f, 0.4f, 0.05f, 0.65f); // 楼梯守卫: 金橙
+                                        mCellImg.color = new Color(0.58f, 0.48f, 0.06f, 0.82f); // 楼梯守卫: 金橙
                                     else if (isElite)
-                                        mCellImg.color = new Color(0.45f, 0.22f, 0.05f, 0.65f); // 精英: 橙红
+                                        mCellImg.color = new Color(0.50f, 0.26f, 0.06f, 0.82f); // 精英: 橙红
                                     else
-                                        mCellImg.color = new Color(0.42f, 0.08f, 0.12f, 0.65f); // 普通: 暗红
+                                        mCellImg.color = new Color(0.48f, 0.10f, 0.15f, 0.82f); // 普通: 暗红
                                 }
 
                                 // === 边框呼吸发光 ===

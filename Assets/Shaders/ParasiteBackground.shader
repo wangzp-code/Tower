@@ -148,7 +148,7 @@ Shader "Game/UI/ParasiteBackground"
                 float combinedNoise = lerp(n1, n2, _Viscosity);
 
                 float3 color = lerp(_MainColor.rgb, _SecondaryColor.rgb, combinedNoise);
-                color = lerp(color, _TertiaryColor.rgb, n2 * 0.15);
+                color = lerp(color, _TertiaryColor.rgb, n2 * 0.20);
 
                 float2 particleUV = (uv + seedOffset * 0.5) * _ParticleDensity;
                 float2 cell = floor(particleUV);
@@ -170,11 +170,11 @@ Shader "Game/UI/ParasiteBackground"
                 }
 
                 float particle = 1 - minDist;
-                particle = smoothstep(0.55, 0.95, particle);
+                particle = smoothstep(0.45, 0.90, particle);
 
-                // 整体压暗 ×0.78 — 营造深邃感
-                // 粒子微光仅 ×0.10 — 呼吸感的点缀, 而非荧光
-                float3 finalColor = color * 0.78 + _TertiaryColor.rgb * particle * 0.10;
+                // 整体保留深邃但不吞色 — ×0.92
+                // 粒子呼吸感点缀 ×0.15
+                float3 finalColor = color * 0.92 + _TertiaryColor.rgb * particle * 0.15;
                 float alpha = tex2D(_MainTex, i.uv).a;
                 return float4(finalColor, alpha);
             }
