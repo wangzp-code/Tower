@@ -97,7 +97,7 @@ public partial class CanvasUIManager : MonoBehaviour
     bool _mapLogged;
     bool _iconLogged;
     HashSet<string> _iconFailed = new HashSet<string>();
-    bool _mapIconSized;
+
     int _lastExploreFloor = -1;
     GameObject _eTutGo;
     GameObject _softHintBubble;
@@ -690,43 +690,42 @@ public partial class CanvasUIManager : MonoBehaviour
                 floorState.walkable = new bool[13, 13];
             }
 
-            // 图标尺寸初始化: 根据格子实际尺寸放大图标,让玩家/怪物更显眼
-            if (!_mapIconSized)
+            // 图标尺寸辅助: 按类型合理设置, 避免溢出邻格
+            // ratio = 图标占格子最短边的比例; glowPad = glow 向外扩张的归一化 padding
+            // 默认 glowPad 0.03 → glow 覆盖 (ratio+0.06) 的格子 → 不溢出相邻格
+            void SetIconSize(int gx, int gy, float ratio, float glowPad = 0.03f)
             {
-                bool anyValid = false;
-                for (int y = 0; y < 13 && !anyValid; y++)
-                    for (int x = 0; x < 13 && !anyValid; x++)
-                        if (_mapImg[y, x] != null && _mapImg[y, x].rectTransform.rect.width > 1f)
-                            anyValid = true;
-                if (anyValid)
+                var iconImg = _mapIcon[gy, gx];
+                var cellImg = _mapImg[gy, gx];
+                if (iconImg == null || cellImg == null) return;
+
+                Canvas.ForceUpdateCanvases();
+                var cellRT = cellImg.rectTransform;
+                float baseSize = Mathf.Min(cellRT.rect.width, cellRT.rect.height);
+                if (baseSize < 1f) return;
+
+                float iconSide = baseSize * ratio;
+                var iconRT = iconImg.rectTransform;
+                iconRT.anchorMin = new Vector2(0.5f, 0.5f);
+                iconRT.anchorMax = new Vector2(0.5f, 0.5f);
+                iconRT.pivot = new Vector2(0.5f, 0.5f);
+                iconRT.sizeDelta = new Vector2(iconSide, iconSide);
+                iconImg.preserveAspect = true;
+
+                // Glow Ring 匹配 icon 尺寸 → 不溢出
+                var glowImg = _mapGlow[gy, gx];
+                if (glowImg != null)
                 {
-                    _mapIconSized = true;
-                    for (int y = 0; y < 13; y++)
-                    {
-                        for (int x = 0; x < 13; x++)
-                        {
-                            var cellImg = _mapImg[y, x];
-                            if (cellImg == null) continue;
-                            var cellRT = cellImg.rectTransform;
-                            float cellW = cellRT.rect.width;
-                            float cellH = cellRT.rect.height;
-                            if (cellW < 1f || cellH < 1f) continue;
-                            // 图标尺寸 = 格子最小边的 1.0 倍,完全在格子内,不溢出到相邻格子
-                            float iconSide = Mathf.Min(cellW, cellH) * 1.0f;
-                            var iconImg = _mapIcon[y, x];
-                            if (iconImg != null)
-                            {
-                                var iconRT = iconImg.rectTransform;
-                                iconRT.anchorMin = new Vector2(0.5f, 0.5f);
-                                iconRT.anchorMax = new Vector2(0.5f, 0.5f);
-                                iconRT.pivot = new Vector2(0.5f, 0.5f);
-                                iconRT.sizeDelta = new Vector2(iconSide, iconSide);
-                            }
-                        }
-                    }
+                    var glowRT = glowImg.rectTransform;
+                    glowRT.anchorMin = new Vector2(0.5f - ratio * 0.5f - glowPad,
+                                                   0.5f - ratio * 0.5f - glowPad);
+                    glowRT.anchorMax = new Vector2(0.5f + ratio * 0.5f + glowPad,
+                                                   0.5f + ratio * 0.5f + glowPad);
+                    glowRT.offsetMin = Vector2.zero;
+                    glowRT.offsetMax = Vector2.zero;
                 }
             }
-            
+
             // 1. 清空所有格子 + 应用迷雾
             // 调试: 检查迷雾系统状态
             int discoveredCount = 0;
@@ -920,6 +919,8 @@ public partial class CanvasUIManager : MonoBehaviour
                         _mapIcon[exitPos.y, exitPos.x].sprite = CreateMapElementSprite(eType, eColor);
                         _mapIcon[exitPos.y, exitPos.x].color = Color.white;
                     }
+                    // Exit 图标尺寸: 0.72 (需要被玩家看到, 但不抢 Boss 风头)
+                    SetIconSize(exitPos.x, exitPos.y, 0.72f, 0.03f);
                     // Exit Glow Ring: 图标放大 1.35x + gold-green alpha 0.22
                     if (_mapGlow[exitPos.y, exitPos.x] != null && _mapIcon[exitPos.y, exitPos.x] != null)
                     {
@@ -957,6 +958,15 @@ public partial class CanvasUIManager : MonoBehaviour
                                 bool isStairGuard = action.monster.stairGuard;
 
                                 SetCellIcon(cellIcon, action.monster.id);
+
+                                // 怪物图标尺寸: 类型决定, 视觉层级清晰
+                                // Boss 最大 0.82 → Elite 0.76 → StairGuard 0.74 → Normal 0.70
+                                float mRatio;
+                                if (isBoss) mRatio = 0.82f;
+                                else if (isElite) mRatio = 0.76f;
+                                else if (isStairGuard) mRatio = 0.74f;
+                                else mRatio = 0.70f;
+                                SetIconSize(pos.x, pos.y, mRatio, 0.03f);
 
                                 // 怪物格子底托: 主题 Accent + 品类偏移 (不再固定红!)
                                 // 保证每层的怪物底托颜色随楼层变化 → 视觉融合
@@ -1020,6 +1030,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                 if (_mapElementTypeColors.TryGetValue(MapElementType.Event, out var eColor))
                                     cellIcon.sprite = CreateMapElementSprite(MapElementType.Event, eColor);
                                 cellIcon.color = Color.white;
+                                SetIconSize(pos.x, pos.y, 0.66f, 0.03f);
                                 Color ol = MakeTint(accentColor, new Color(0.60f, 0.32f, 1f, 0.75f));
                                 SetOutline(pos.x, pos.y, ol, 1.5f, 1.2f, 0.35f);
                                 SetGlow(pos.x, pos.y, ol);
@@ -1035,6 +1046,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                 if (_mapElementTypeColors.TryGetValue(MapElementType.Shop, out var sColor))
                                     cellIcon.sprite = CreateMapElementSprite(MapElementType.Shop, sColor);
                                 cellIcon.color = Color.white;
+                                SetIconSize(pos.x, pos.y, 0.68f, 0.03f);
                                 Color ol = MakeTint(accentColor, new Color(1f, 0.85f, 0.35f, 0.85f));
                                 SetOutline(pos.x, pos.y, ol, 2f, 1.0f, 0.35f);
                                 SetGlow(pos.x, pos.y, ol);
@@ -1050,6 +1062,7 @@ public partial class CanvasUIManager : MonoBehaviour
                                 if (_mapElementTypeColors.TryGetValue(MapElementType.Fragment, out var fColor))
                                     cellIcon.sprite = CreateMapElementSprite(MapElementType.Fragment, fColor);
                                 cellIcon.color = Color.white;
+                                SetIconSize(pos.x, pos.y, 0.64f, 0.03f);
                                 Color ol = MakeTint(accentColor, new Color(0.32f, 0.90f, 1f, 0.82f));
                                 SetOutline(pos.x, pos.y, ol, 1.5f, 1.5f, 0.4f);
                                 SetGlow(pos.x, pos.y, ol);
@@ -1077,6 +1090,8 @@ public partial class CanvasUIManager : MonoBehaviour
                     string playerIconId = p.currentFormId == "human" ? "c_" + p.selectedClass : p.currentFormId;
                     SetCellIcon(_mapIcon[playerPos.y, playerPos.x], playerIconId);
                     _mapIcon[playerPos.y, playerPos.x].color = new Color(1f, 1f, 0.88f, 1f);
+                    // 玩家图标尺寸 0.75 — 比普通怪物略大, 保证一眼可辨
+                    SetIconSize(playerPos.x, playerPos.y, 0.75f, 0.03f);
                     _mapIcon[playerPos.y, playerPos.x].rectTransform.SetAsLastSibling();
                 }
             }
