@@ -1,0 +1,58 @@
+Unity Editor version:    2022.3.62f2c1 (92e6e6be66dc)
+Branch:                  2022.3/china_unity/release
+Build type:              Release
+Batch mode:              YES
+macOS version:           Version 26.1 (Build 25B78)
+Darwin version:          25.1.0
+Architecture:            x86_64
+Running under Rosetta:   NO
+Available memory:        16384 MB
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-wangzhipeng" at "2026-06-02T07:10:35.837822Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 19482, path: "/Applications/Unity Hub.app/Contents/Frameworks/UnityLicensingClient_V1.app/Contents/MacOS/Unity.Licensing.Client")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.16.2'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-wangzhipeng"
+[Licensing::IpcConnector] LicenseClient-wangzhipeng channel disconnected successfully.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-wangzhipeng-2022.3.62" at "2026-06-02T07:10:36.67847Z"
+[Licensing::Client] Code 1 while verifying Licensing Client signature (process Id: 47625, path: "/Applications/Unity/Hub/Editor/2022.3.62f2c1/Unity.app/Contents/Frameworks/UnityLicensingClient.app/Contents/MacOS/Unity.Licensing.Client")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.16.2+bdef8f5
+  Session Id:              01b56b50d1774312b1ef841ee06e52f2
+  Correlation Id:          ace38ea8c07125f298de2f2b3d17b547
+  External correlation Id: 8902859852384732245
+  Machine Id:              kq/IEr7zXluA0OcemUmMAByLmMI=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-wangzhipeng-2022.3.62" (connect: 0.00s, validation: 0.01s, handshake: 0.02s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-wangzhipeng-2022.3.62-notifications" at "2026-06-02T07:10:36.708928Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully updated license
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Serial number assigned to: "F4-N6N9-6AM5-BT7T-HY8F-XXXX"
+Pro License: NO
+[Licensing::Client] Successfully resolved entitlement details
+Launching external process: /Applications/Unity/Hub/Editor/2022.3.62f2c1/Unity.app/Contents/Resources/PackageManager/Server/UnityPackageManager
+
+COMMAND LINE ARGUMENTS:
+/Applications/Unity/Hub/Editor/2022.3.62f2c1/Unity.app/Contents/MacOS/Unity
+-batchmode
+-quit
+-projectPath
+/Users/wangzhipeng/tower
+-logFile
+/Users/wangzhipeng/tower/unity.log
+Successfully changed project path to: /Users/wangzhipeng/tower
+/Users/wangzhipeng/tower
+似乎有另一个正在运行的 Unity 实例打开了此项目。
+
+多个 Unity 实例无法打开同一个项目。
+
+项目：/Users/wangzhipeng/tower
+Fatal Error! 似乎有另一个正在运行的 Unity 实例打开了此项目。
+
+多个 Unity 实例无法打开同一个项目。
+
+项目：/Users/wangzhipeng/tower
+[Package Manager] Server::Kill -- Server was shutdown

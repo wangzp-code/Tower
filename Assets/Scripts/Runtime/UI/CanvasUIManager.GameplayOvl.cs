@@ -71,16 +71,24 @@ public partial class CanvasUIManager
         _possessOvl = Panel("PossessOvl", new Color(0.06f,0.04f,0.10f,0.88f));
         var rt = _possessOvl.GetComponent<RectTransform>();
 
-        // Main card
+        // Main card — 居中紧凑, 不再撑满屏幕
         var card = new GameObject("Card", typeof(RectTransform), typeof(Image), typeof(Outline));
         card.transform.SetParent(rt, false);
-        card.GetComponent<Image>().color = new Color(0.08f,0.05f,0.18f,0.96f);
-        card.GetComponent<Outline>().effectColor = new Color(0.71f,0.33f,1f,0.4f);
-        card.GetComponent<Outline>().effectDistance = new Vector2(2,2);
+        card.GetComponent<Image>().color = new Color(0.06f,0.04f,0.14f,0.95f);
+        card.GetComponent<Outline>().effectColor = new Color(0.71f,0.33f,1f,0.25f);
+        card.GetComponent<Outline>().effectDistance = new Vector2(0.5f,0.5f);
         var cardRT = card.GetComponent<RectTransform>();
-        cardRT.anchorMin = new Vector2(0.06f, 0.08f);
-        cardRT.anchorMax = new Vector2(0.94f, 0.92f);
-        cardRT.offsetMin = Vector2.zero; cardRT.offsetMax = Vector2.zero;
+        // 居中锚点 + pivot — ContentSizeFitter 可自由控制高度, 不被拉伸
+        cardRT.anchorMin = new Vector2(0.08f, 0.5f);
+        cardRT.anchorMax = new Vector2(0.92f, 0.5f);
+        cardRT.pivot = new Vector2(0.5f, 0.5f);
+        cardRT.anchoredPosition = Vector2.zero;
+        // 先给一个合理的初始高度, ContentSizeFitter 会在布局后自动校正
+        cardRT.sizeDelta = new Vector2(0, 480);
+        // 让卡片根据子元素 preferredHeight 自动收缩, 不撑满锚点范围
+        var csf = card.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+        csf.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        csf.horizontalFit = UnityEngine.UI.ContentSizeFitter.FitMode.Unconstrained;
 
         var cardVL = AddVL(card, 14, 6);
         cardVL.childControlHeight = false;
