@@ -560,11 +560,11 @@ public partial class CanvasUIManager
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
         // 尺寸 (参考分辨率 540x960) — 全部按栏高比例自适应
-        float cellHNormal = navBarHeight * 0.82f;   // ≈36
-        float cellHCenter = navBarHeight * 0.95f;   // ≈42
-        float iconSizeNormal = cellHNormal * 0.66f; // ≈24
-        float iconSizeCenter = cellHCenter * 0.71f; // ≈30
-        float cellLabelFontNormal = 10f;
+        float cellHNormal = navBarHeight * 0.84f;   // ≈50
+        float cellHCenter = navBarHeight * 0.96f;   // ≈58
+        float iconSizeNormal = cellHNormal * 0.66f; // ≈33
+        float iconSizeCenter = cellHCenter * 0.70f; // ≈40
+        float cellLabelFontNormal = 13f;
         float cellGapX = 0.012f; // 归一化水平间隔
 
         // 第一遍: 收集解锁的导航项
@@ -1128,10 +1128,10 @@ public partial class CanvasUIManager
         var tex = !string.IsNullOrEmpty(texName) ? LoadTex("UI/" + texName) : null;
 
         // 使用设计令牌 - 基于参考分辨率 (540x960)
-        float btnSize = 38f;
-        float labelH = 13f;
-        float labelFontSize = 10f;
-        float iconSize = 30f;
+        float btnSize = 52f;
+        float labelH = 16f;
+        float labelFontSize = 12f;
+        float iconSize = 42f;
         float padXS = UIDesignTokens.Space.XS;
         float padS = UIDesignTokens.Space.S;
 
