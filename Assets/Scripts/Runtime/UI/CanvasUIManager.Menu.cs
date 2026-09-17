@@ -585,17 +585,19 @@ public partial class CanvasUIManager
             var navCell = new GameObject("Nav_" + navName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(Outline));
             navCell.transform.SetParent(navHL.transform, false);
             var navCellImg = navCell.GetComponent<Image>();
-            navCellImg.color = isCenter ? UIDesignTokens.Colors.BtnCenterBg : new Color(0.07f, 0.05f, 0.12f, 0.5f);
+            // 高级感: 普通项近乎透明融入底栏, 不再画独立盒子
+            navCellImg.color = isCenter ? UIDesignTokens.Colors.BtnCenterBg : new Color(1f, 1f, 1f, 0.015f);
             var navOL = navCell.GetComponent<Outline>();
-            navOL.effectColor = isCenter ? UIDesignTokens.Colors.BtnCenterBorder : new Color(0f, 1f, 0.816f, 0.15f);
-            navOL.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineNormal, UIDesignTokens.Effect.OutlineNormal);
-
-            // 中心按钮额外添加发光边框
+            navOL.enabled = false; // 去掉普通项描边
             if (isCenter)
             {
+                // 中心主按钮: 柔光双描边, 唯一的视觉焦点
+                navOL.enabled = true;
+                navOL.effectColor = UIDesignTokens.Colors.BtnCenterBorder;
+                navOL.effectDistance = new Vector2(1f, 1f);
                 var navGlowOL = navCell.AddComponent<Outline>();
-                navGlowOL.effectColor = new Color(0f, 1f, 0.816f, 0.08f);
-                navGlowOL.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineLarge, UIDesignTokens.Effect.OutlineLarge);
+                navGlowOL.effectColor = new Color(0f, 1f, 0.816f, 0.10f);
+                navGlowOL.effectDistance = new Vector2(4f, 4f);
             }
 
             // 均匀占满: 宽度按 1/N 锚点等分拉伸, 高度固定
@@ -607,6 +609,20 @@ public partial class CanvasUIManager
             crt.pivot = new Vector2(0.5f, 0.5f);
             crt.anchoredPosition = Vector2.zero;
             crt.sizeDelta = new Vector2(0f, cellH);
+
+            // 项间细分隔线 (除最后一项), 一体化高级感
+            if (ci < cellCount - 1)
+            {
+                var sepGo = new GameObject("CellSep", typeof(RectTransform), typeof(Image));
+                sepGo.transform.SetParent(navHL.transform, false);
+                var sepRT = sepGo.GetComponent<RectTransform>();
+                sepRT.anchorMin = new Vector2(x1, 0.5f);
+                sepRT.anchorMax = new Vector2(x1, 0.5f);
+                sepRT.pivot = new Vector2(0.5f, 0.5f);
+                sepRT.anchoredPosition = Vector2.zero;
+                sepRT.sizeDelta = new Vector2(1f, cellHNormal * 0.44f);
+                sepGo.GetComponent<Image>().color = new Color(0f, 1f, 0.816f, 0.10f);
+            }
 
             float cellIconSize = isCenter ? iconSizeCenter : iconSizeNormal;
             float cellLabelFont = isCenter ? cellLabelFontNormal + 1 : cellLabelFontNormal;
@@ -636,9 +652,9 @@ public partial class CanvasUIManager
                 niIcon.fontStyle = FontStyle.Bold;
             }
 
-            // 标签: 点锚点居中偏下
+            // 标签: 点锚点居中偏下 (普通项用主文字色, 保证暗背景可读性)
             var niName = TxtAnchored(crt, navName, (int)cellLabelFont,
-                isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextSecondary,
+                isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextPrimary,
                 new Vector2(0.5f, 0.16f), new Vector2(0.5f, 0.16f), 0, 0);
             niName.fontStyle = FontStyle.Bold;
 
@@ -649,10 +665,10 @@ public partial class CanvasUIManager
             navBtnColors.pressedColor = Color.Lerp(navCellImg.color, Color.black, 0.15f);
             navCell.GetComponent<Button>().colors = navBtnColors;
 
-            // 添加微交互 - 使用强调色实现hover/press状态
+            // 添加微交互 - 全部用强调色实现hover/press的柔和反馈
             var feedback = navCell.AddComponent<ButtonPressFeedback>();
-            if (isCenter)
-                feedback.SetAccentColor(UIDesignTokens.Colors.Primary);
+            feedback.SetAccentColor(isCenter ? UIDesignTokens.Colors.Primary
+                                             : new Color(0f, 1f, 0.816f, 0.55f));
 
             navCell.GetComponent<Button>().onClick.AddListener(() => OnNavButtonClick(navName));
         }
