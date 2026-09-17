@@ -1166,7 +1166,7 @@ public partial class CanvasUIManager
         btnGlowOutline.effectColor = new Color(col.r, col.g, col.b, 0.08f);
         btnGlowOutline.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineLarge * 2, UIDesignTokens.Effect.OutlineLarge * 2);
 
-        var btnLE = btn.AddComponent<LayoutElement>();
+        var btnLE = btn.AddComponent<LayoutElement>(); Debug.Log("TEST: BuildSideButton btnSize=" + btnSize + " iconSize=" + iconSize);
         btnLE.preferredWidth = btnSize;
         btnLE.preferredHeight = btnSize;
         btnLE.minWidth = btnSize;
