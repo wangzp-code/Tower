@@ -520,7 +520,6 @@ public partial class CanvasUIManager
         // 使用设计令牌 - 基于参考分辨率 (540x960)
         float navBarHeight = UIDesignTokens.Component.NavBarHeight;
         float navLabelFont = UIDesignTokens.Component.NavLabelFont;
-        float navLabelH = UIDesignTokens.Component.NavLabelH;
         
         var navBar = new GameObject("NavBar", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
         navBar.transform.SetParent(parent, false);
@@ -550,31 +549,38 @@ public partial class CanvasUIManager
         navSepBot.GetComponent<Image>().color = UIDesignTokens.Colors.PrimaryDim;
 
         // 导航栏水平布局
-        var navHL = new GameObject("NavHL", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+        // ═══ 纯锚点绝对定位 (不依赖 LayoutGroup) ═══
+        // 布局系统在此链路失效: HLG 从未接管子物体, cell 一直卡在默认 100x100
+        var navHL = new GameObject("NavHL", typeof(RectTransform));
         navHL.transform.SetParent(navBar.transform, false);
         Stretch(navHL);
-        var nhl = navHL.GetComponent<HorizontalLayoutGroup>();
-        nhl.spacing = UIDesignTokens.Space.XS;
-        nhl.childAlignment = TextAnchor.MiddleCenter;
-        nhl.childForceExpandWidth = true;
-        nhl.childForceExpandHeight = false;
-        nhl.childControlHeight = true;
-        nhl.padding = new RectOffset((int)UIDesignTokens.Space.M, (int)UIDesignTokens.Space.M, (int)UIDesignTokens.Space.S, (int)UIDesignTokens.Space.S);
 
         string[] navNames = { "成就", "图鉴", "闯塔", "设置", "商店" };
         string[] navIconTex = { "icon_achievement", "icon_bestiary", null, "icon_settings", "icon_shop" };
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
-        // 图标尺寸 - forceExpand 修复后真正生效
+        // 尺寸 (参考分辨率 540x960)
         float iconSizeNormal = 14f;
         float iconSizeCenter = 18f;
+        float cellHNormal = 24f;
+        float cellHCenter = 28f;
+        float cellGapX = 0.012f; // 归一化水平间隔
 
+        // 第一遍: 收集解锁的导航项
+        int[] unlocked = new int[navNames.Length];
+        int cellCount = 0;
         for (int ni = 0; ni < navNames.Length; ni++)
         {
+            if (IsNavModuleUnlocked(navNames[ni])) unlocked[cellCount++] = ni;
+        }
+        if (cellCount == 0) return;
+
+        for (int ci = 0; ci < cellCount; ci++)
+        {
+            int ni = unlocked[ci];
             string navName = navNames[ni];
             bool isCenter = ni == 2;
-
-            if (!IsNavModuleUnlocked(navName)) continue;
+            float cellH = isCenter ? cellHCenter : cellHNormal;
 
             var navCell = new GameObject("Nav_" + navName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(Outline));
             navCell.transform.SetParent(navHL.transform, false);
@@ -584,13 +590,6 @@ public partial class CanvasUIManager
             navOL.effectColor = isCenter ? UIDesignTokens.Colors.BtnCenterBorder : new Color(0f, 1f, 0.816f, 0.15f);
             navOL.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineNormal, UIDesignTokens.Effect.OutlineNormal);
 
-            // 确定性高度控制: 外层不再 forceExpand, 由 LayoutElement 决定格子高度
-            var cellLE = navCell.AddComponent<LayoutElement>();
-            cellLE.preferredHeight = isCenter ? 24f : 22f;
-            cellLE.minHeight = 22f;
-            cellLE.flexibleWidth = 1f;
-            cellLE.flexibleHeight = 0f;
-
             // 中心按钮额外添加发光边框
             if (isCenter)
             {
@@ -599,19 +598,15 @@ public partial class CanvasUIManager
                 navGlowOL.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineLarge, UIDesignTokens.Effect.OutlineLarge);
             }
 
-            var navInner = new GameObject("Inner", typeof(RectTransform), typeof(VerticalLayoutGroup));
-        navInner.transform.SetParent(navCell.transform, false);
-        Stretch(navInner);
-        var nivl = navInner.GetComponent<VerticalLayoutGroup>();
-        nivl.spacing = UIDesignTokens.Space.XS;
-        nivl.padding = new RectOffset((int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS);
-        nivl.childAlignment = TextAnchor.MiddleCenter;
-        // 关键修复: forceExpand=true 会强制 iconWrap 拉伸填满格子宽度,
-        // LayoutElement 的图标尺寸完全失效 — 必须改为 false
-        nivl.childForceExpandWidth = false;
-        nivl.childForceExpandHeight = false;
-        nivl.childControlWidth = true;
-        nivl.childControlHeight = true;
+            // 锚点定位: 宽度按等分拉伸, 高度固定由 sizeDelta 决定
+            var crt = navCell.GetComponent<RectTransform>();
+            float x0 = (float)ci / cellCount + cellGapX;
+            float x1 = (float)(ci + 1) / cellCount - cellGapX;
+            crt.anchorMin = new Vector2(x0, 0.5f);
+            crt.anchorMax = new Vector2(x1, 0.5f);
+            crt.pivot = new Vector2(0.5f, 0.5f);
+            crt.anchoredPosition = Vector2.zero;
+            crt.sizeDelta = new Vector2(0f, cellH);
 
             float cellIconSize = isCenter ? iconSizeCenter : iconSizeNormal;
             float cellLabelFont = isCenter ? navLabelFont + 1 : navLabelFont;
@@ -620,41 +615,32 @@ public partial class CanvasUIManager
             var navTex = !string.IsNullOrEmpty(iconTexName) ? LoadTex("UI/" + iconTexName) : null;
             if (navTex != null)
             {
-                var iconWrap = new GameObject("IconWrap", typeof(RectTransform), typeof(LayoutElement));
-                iconWrap.transform.SetParent(navInner.transform, false);
-                var wrapLE = iconWrap.GetComponent<LayoutElement>();
-                wrapLE.preferredHeight = cellIconSize;
-                wrapLE.preferredWidth = cellIconSize;
-                wrapLE.minHeight = cellIconSize;
-                wrapLE.minWidth = cellIconSize;
-
+                // 图标: 点锚点居中偏上, 尺寸直接由 sizeDelta 决定
+                var iconWrap = new GameObject("IconWrap", typeof(RectTransform));
+                iconWrap.transform.SetParent(navCell.transform, false);
+                var wrapRT = iconWrap.GetComponent<RectTransform>();
+                wrapRT.anchorMin = new Vector2(0.5f, 0.66f);
+                wrapRT.anchorMax = new Vector2(0.5f, 0.66f);
+                wrapRT.pivot = new Vector2(0.5f, 0.5f);
+                wrapRT.anchoredPosition = Vector2.zero;
+                wrapRT.sizeDelta = new Vector2(cellIconSize, cellIconSize);
                 BuildAspectIcon(iconWrap.transform, navTex, (int)UIDesignTokens.Space.XS);
             }
             else
             {
+                // 文字图标兜底: 点锚点居中偏上
                 string fallbackIcon = navFallbackIcons[ni];
-                var niIcon = TxtGo(navInner.transform, !string.IsNullOrEmpty(fallbackIcon) ? fallbackIcon : "⚔", (int)(cellLabelFont + 8), isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextSecondary);
-                niIcon.alignment = TextAnchor.MiddleCenter;
+                var niIcon = TxtAnchored(crt, !string.IsNullOrEmpty(fallbackIcon) ? fallbackIcon : "⚔",
+                    (int)(cellLabelFont + 8), isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextSecondary,
+                    new Vector2(0.5f, 0.66f), new Vector2(0.5f, 0.66f), 0, 0);
                 niIcon.fontStyle = FontStyle.Bold;
-                var iconLE = niIcon.gameObject.AddComponent<LayoutElement>();
-                iconLE.preferredHeight = cellIconSize;
-                iconLE.preferredWidth = cellIconSize;
-                iconLE.minHeight = cellIconSize;
-                iconLE.minWidth = cellIconSize;
-                iconLE.flexibleWidth = 0;
-                var iconRT = niIcon.GetComponent<RectTransform>();
-                iconRT.sizeDelta = new Vector2(cellIconSize, cellIconSize);
             }
 
-            var niName = TxtGo(navInner.transform, navName, (int)cellLabelFont, isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextSecondary);
-            niName.alignment = TextAnchor.MiddleCenter;
+            // 标签: 点锚点居中偏下
+            var niName = TxtAnchored(crt, navName, (int)cellLabelFont,
+                isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextSecondary,
+                new Vector2(0.5f, 0.16f), new Vector2(0.5f, 0.16f), 0, 0);
             niName.fontStyle = FontStyle.Bold;
-            niName.horizontalOverflow = HorizontalWrapMode.Overflow;
-            var nameLE = niName.gameObject.AddComponent<LayoutElement>();
-            nameLE.preferredHeight = navLabelH;
-            nameLE.minHeight = navLabelH;
-            nameLE.flexibleWidth = 1;
-            nameLE.flexibleHeight = 0;
 
             navCell.GetComponent<Button>().targetGraphic = navCellImg;
             var navBtnColors = navCell.GetComponent<Button>().colors;
@@ -671,17 +657,11 @@ public partial class CanvasUIManager
             navCell.GetComponent<Button>().onClick.AddListener(() => OnNavButtonClick(navName));
         }
 
-        // 强制立即刷新布局, 确保导航栏图标尺寸生效
-        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(navHL.GetComponent<RectTransform>());
-
         // 诊断日志: 输出真实渲染尺寸, 便于核对
-        if (navHL.transform.childCount > 0)
-        {
-            var firstCell = navHL.transform.GetChild(0).GetComponent<RectTransform>();
-            var firstIconWrap = navHL.transform.GetChild(0).Find("Inner/IconWrap");
-            Debug.Log($"[NavBar] barH={navBarHeight} cell={firstCell.rect.size}" +
-                      $" iconWrap={(firstIconWrap != null ? firstIconWrap.GetComponent<RectTransform>().rect.size.ToString() : "fallback")}");
-        }
+        var firstDiagRT = navHL.transform.GetChild(0).GetComponent<RectTransform>();
+        var firstDiagWrap = navHL.transform.GetChild(0).Find("IconWrap");
+        Debug.Log($"[NavBar] cells={cellCount} barH={navBarHeight} cellSize={firstDiagRT.sizeDelta}" +
+                  $" iconWrap={(firstDiagWrap != null ? firstDiagWrap.GetComponent<RectTransform>().sizeDelta.ToString() : "fallback")}");
     }
 
     void BuildMenuTopBar(Transform parent)
