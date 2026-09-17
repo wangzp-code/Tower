@@ -594,10 +594,10 @@ public partial class CanvasUIManager
                 // 中心主按钮: 柔光双描边, 唯一的视觉焦点
                 navOL.enabled = true;
                 navOL.effectColor = UIDesignTokens.Colors.BtnCenterBorder;
-                navOL.effectDistance = new Vector2(1f, 1f);
+                navOL.effectDistance = new Vector2(2f, 2f);
                 var navGlowOL = navCell.AddComponent<Outline>();
-                navGlowOL.effectColor = new Color(0f, 1f, 0.816f, 0.10f);
-                navGlowOL.effectDistance = new Vector2(4f, 4f);
+                navGlowOL.effectColor = new Color(0f, 1f, 0.816f, 0.18f);
+                navGlowOL.effectDistance = new Vector2(6f, 6f);
             }
 
             // 均匀占满: 宽度按 1/N 锚点等分拉伸, 高度固定
@@ -644,12 +644,26 @@ public partial class CanvasUIManager
             }
             else
             {
-                // 文字图标兜底: 点锚点居中偏上
+                // 文字图标兜底: 给明确 sizeDelta, 中心按钮用更强字号+发光
                 string fallbackIcon = navFallbackIcons[ni];
+                float fallbackSize = cellIconSize;
                 var niIcon = TxtAnchored(crt, !string.IsNullOrEmpty(fallbackIcon) ? fallbackIcon : "⚔",
-                    (int)(cellLabelFont + 8), isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextSecondary,
+                    isCenter ? 28 : (int)(cellLabelFont + 8),
+                    isCenter ? UIDesignTokens.Colors.TextBright : UIDesignTokens.Colors.TextPrimary,
                     new Vector2(0.5f, 0.66f), new Vector2(0.5f, 0.66f), 0, 0);
                 niIcon.fontStyle = FontStyle.Bold;
+                var niIconRT = niIcon.GetComponent<RectTransform>();
+                niIconRT.sizeDelta = new Vector2(fallbackSize, fallbackSize);
+                var niIconOL = niIcon.GetComponent<Outline>();
+                if (niIconOL != null)
+                {
+                    niIconOL.effectColor = isCenter
+                        ? new Color(0f, 1f, 0.816f, 0.95f)
+                        : new Color(0f, 0f, 0f, 0.7f);
+                    niIconOL.effectDistance = isCenter
+                        ? new Vector2(2f, 2f)
+                        : new Vector2(1.5f, 1.5f);
+                }
             }
 
             // 标签: 点锚点居中偏下 (普通项用主文字色, 保证暗背景可读性)

@@ -174,8 +174,8 @@ public static class UIDesignTokens
         public static readonly UnityEngine.Color BtnHover = ParasiteTowerColorScheme.UiBtnBgHover;
         public static readonly UnityEngine.Color BtnHoverBorder = new UnityEngine.Color(0f, 1f, 0.816f, 0.5f);
         public static readonly UnityEngine.Color BtnPressed = new UnityEngine.Color(0.04f, 0.08f, 0.06f, 0.95f);
-        public static readonly UnityEngine.Color BtnCenterBg = new UnityEngine.Color(0.04f, 0.12f, 0.10f, 0.95f);
-        public static readonly UnityEngine.Color BtnCenterBorder = new UnityEngine.Color(0f, 1f, 0.816f, 0.6f);
+        public static readonly UnityEngine.Color BtnCenterBg = new UnityEngine.Color(0.08f, 0.25f, 0.22f, 0.85f);
+        public static readonly UnityEngine.Color BtnCenterBorder = new UnityEngine.Color(0f, 1f, 0.816f, 0.85f);
         
         // 侧边按钮色彩语义
         public static readonly UnityEngine.Color SidePurple = ParasiteTowerColorScheme.AbyssPurple;
