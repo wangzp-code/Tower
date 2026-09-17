@@ -565,8 +565,8 @@ public partial class CanvasUIManager
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
         // 图标尺寸 - 使用设计令牌
-        float iconSizeNormal = UIDesignTokens.Icon.NavNormal;
-        float iconSizeCenter = UIDesignTokens.Icon.NavCenter;
+        float iconSizeNormal = 8f; // HARDCODED TEST
+        float iconSizeCenter = 10f; // HARDCODED TEST
 
         for (int ni = 0; ni < navNames.Length; ni++)
         {
@@ -1125,10 +1125,10 @@ public partial class CanvasUIManager
         var tex = !string.IsNullOrEmpty(texName) ? LoadTex("UI/" + texName) : null;
 
         // 使用设计令牌 - 基于参考分辨率 (540x960)
-        float btnSize = UIDesignTokens.Component.SideBtnSize;
+        float btnSize = 10f; // HARDCODED TEST
         float labelH = UIDesignTokens.Component.SideLabelH;
         float labelFontSize = UIDesignTokens.Component.SideLabelFont;
-        float iconSize = UIDesignTokens.Icon.SideBtn;
+        float iconSize = 6f; // HARDCODED TEST
         float padXS = UIDesignTokens.Space.XS;
         float padS = UIDesignTokens.Space.S;
 
