@@ -557,16 +557,17 @@ public partial class CanvasUIManager
         nhl.spacing = UIDesignTokens.Space.XS;
         nhl.childAlignment = TextAnchor.MiddleCenter;
         nhl.childForceExpandWidth = true;
-        nhl.childForceExpandHeight = true;
+        nhl.childForceExpandHeight = false;
+        nhl.childControlHeight = true;
         nhl.padding = new RectOffset((int)UIDesignTokens.Space.M, (int)UIDesignTokens.Space.M, (int)UIDesignTokens.Space.S, (int)UIDesignTokens.Space.S);
 
         string[] navNames = { "成就", "图鉴", "闯塔", "设置", "商店" };
         string[] navIconTex = { "icon_achievement", "icon_bestiary", null, "icon_settings", "icon_shop" };
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
-        // 图标尺寸 - 使用设计令牌
-        float iconSizeNormal = 10f;
-        float iconSizeCenter = 13f;
+        // 图标尺寸 - forceExpand 修复后真正生效
+        float iconSizeNormal = 14f;
+        float iconSizeCenter = 18f;
 
         for (int ni = 0; ni < navNames.Length; ni++)
         {
@@ -583,6 +584,13 @@ public partial class CanvasUIManager
             navOL.effectColor = isCenter ? UIDesignTokens.Colors.BtnCenterBorder : new Color(0f, 1f, 0.816f, 0.15f);
             navOL.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineNormal, UIDesignTokens.Effect.OutlineNormal);
 
+            // 确定性高度控制: 外层不再 forceExpand, 由 LayoutElement 决定格子高度
+            var cellLE = navCell.AddComponent<LayoutElement>();
+            cellLE.preferredHeight = isCenter ? 24f : 22f;
+            cellLE.minHeight = 22f;
+            cellLE.flexibleWidth = 1f;
+            cellLE.flexibleHeight = 0f;
+
             // 中心按钮额外添加发光边框
             if (isCenter)
             {
@@ -592,16 +600,18 @@ public partial class CanvasUIManager
             }
 
             var navInner = new GameObject("Inner", typeof(RectTransform), typeof(VerticalLayoutGroup));
-            navInner.transform.SetParent(navCell.transform, false);
-            Stretch(navInner);
-            var nivl = navInner.GetComponent<VerticalLayoutGroup>();
-            nivl.spacing = UIDesignTokens.Space.XS;
-            nivl.padding = new RectOffset((int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS);
-            nivl.childAlignment = TextAnchor.MiddleCenter;
-            nivl.childForceExpandWidth = true;
-            nivl.childForceExpandHeight = false;
-            nivl.childControlWidth = true;
-            nivl.childControlHeight = true;
+        navInner.transform.SetParent(navCell.transform, false);
+        Stretch(navInner);
+        var nivl = navInner.GetComponent<VerticalLayoutGroup>();
+        nivl.spacing = UIDesignTokens.Space.XS;
+        nivl.padding = new RectOffset((int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS, (int)UIDesignTokens.Space.XS);
+        nivl.childAlignment = TextAnchor.MiddleCenter;
+        // 关键修复: forceExpand=true 会强制 iconWrap 拉伸填满格子宽度,
+        // LayoutElement 的图标尺寸完全失效 — 必须改为 false
+        nivl.childForceExpandWidth = false;
+        nivl.childForceExpandHeight = false;
+        nivl.childControlWidth = true;
+        nivl.childControlHeight = true;
 
             float cellIconSize = isCenter ? iconSizeCenter : iconSizeNormal;
             float cellLabelFont = isCenter ? navLabelFont + 1 : navLabelFont;
@@ -663,6 +673,15 @@ public partial class CanvasUIManager
 
         // 强制立即刷新布局, 确保导航栏图标尺寸生效
         UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(navHL.GetComponent<RectTransform>());
+
+        // 诊断日志: 输出真实渲染尺寸, 便于核对
+        if (navHL.transform.childCount > 0)
+        {
+            var firstCell = navHL.transform.GetChild(0).GetComponent<RectTransform>();
+            var firstIconWrap = navHL.transform.GetChild(0).Find("Inner/IconWrap");
+            Debug.Log($"[NavBar] barH={navBarHeight} cell={firstCell.rect.size}" +
+                      $" iconWrap={(firstIconWrap != null ? firstIconWrap.GetComponent<RectTransform>().rect.size.ToString() : "fallback")}");
+        }
     }
 
     void BuildMenuTopBar(Transform parent)
@@ -1128,10 +1147,10 @@ public partial class CanvasUIManager
         var tex = !string.IsNullOrEmpty(texName) ? LoadTex("UI/" + texName) : null;
 
         // 使用设计令牌 - 基于参考分辨率 (540x960)
-        float btnSize = 22f;
+        float btnSize = 30f;
         float labelH = UIDesignTokens.Component.SideLabelH;
         float labelFontSize = UIDesignTokens.Component.SideLabelFont;
-        float iconSize = 17f;
+        float iconSize = 24f;
         float padXS = UIDesignTokens.Space.XS;
         float padS = UIDesignTokens.Space.S;
 
