@@ -59,7 +59,7 @@ public static class UIDesignTokens
     public static class Component
     {
         // 底部导航栏
-        public const float NavBarHeight = 60f;      // 导航栏高度 (自适应基准: 格子/图标均按此比例推导)
+        public const float NavBarHeight = 68f;      // 导航栏高度 (自适应基准: 格子/图标均按此比例推导)
         public const float NavLabelH = 7f;          // 导航标签高度 (原11 ×0.6)
         public const float NavLabelFont = 5f;       // 导航标签字号 (原8 ×0.6)
         

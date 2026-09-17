@@ -519,8 +519,7 @@ public partial class CanvasUIManager
     {
         // 使用设计令牌 - 基于参考分辨率 (540x960)
         float navBarHeight = UIDesignTokens.Component.NavBarHeight;
-        float navLabelFont = UIDesignTokens.Component.NavLabelFont;
-        
+
         var navBar = new GameObject("NavBar", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
         navBar.transform.SetParent(parent, false);
         navBar.GetComponent<Image>().color = UIDesignTokens.Colors.NavBarBg;
@@ -560,12 +559,12 @@ public partial class CanvasUIManager
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
         // 尺寸 (参考分辨率 540x960) — 全部按栏高比例自适应
-        float cellHNormal = navBarHeight * 0.84f;   // ≈50
-        float cellHCenter = navBarHeight * 0.96f;   // ≈58
-        float iconSizeNormal = cellHNormal * 0.66f; // ≈33
-        float iconSizeCenter = cellHCenter * 0.70f; // ≈40
+        float cellHNormal = navBarHeight * 0.84f;   // ≈57
+        float cellHCenter = navBarHeight * 0.96f;   // ≈65
+        float iconSizeNormal = cellHNormal * 0.66f; // ≈38
+        float iconSizeCenter = cellHCenter * 0.70f; // ≈46
         float cellLabelFontNormal = 13f;
-        float cellGapX = 0.012f; // 归一化水平间隔
+        float cellGap = 3f; // 按钮间隙 (紧凑, 紧挨)
 
         // 第一遍: 收集解锁的导航项
         int[] unlocked = new int[navNames.Length];
@@ -576,12 +575,24 @@ public partial class CanvasUIManager
         }
         if (cellCount == 0) return;
 
+        // 第二遍: 预计算各按钮宽度, 得到整组总宽 (居中排布)
+        float[] cellWArr = new float[cellCount];
+        float totalW = 0f;
+        for (int ci = 0; ci < cellCount; ci++)
+        {
+            float ch = unlocked[ci] == 2 ? cellHCenter : cellHNormal;
+            cellWArr[ci] = ch * 1.08f; // 近正方形
+            if (ci > 0) totalW += cellGap;
+            totalW += cellWArr[ci];
+        }
+
         for (int ci = 0; ci < cellCount; ci++)
         {
             int ni = unlocked[ci];
             string navName = navNames[ni];
             bool isCenter = ni == 2;
             float cellH = isCenter ? cellHCenter : cellHNormal;
+            float cellW = cellWArr[ci];
 
             var navCell = new GameObject("Nav_" + navName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(Outline));
             navCell.transform.SetParent(navHL.transform, false);
@@ -599,15 +610,17 @@ public partial class CanvasUIManager
                 navGlowOL.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineLarge, UIDesignTokens.Effect.OutlineLarge);
             }
 
-            // 锚点定位: 宽度按等分拉伸, 高度固定由 sizeDelta 决定
+            // 紧凑排布: 点锚点 + 像素偏移, 整组水平居中, 按钮紧挨
+            float accW = 0f;
+            for (int pi = 0; pi < ci; pi++) accW += cellWArr[pi] + cellGap;
+            float posX = -totalW * 0.5f + accW + cellW * 0.5f;
+
             var crt = navCell.GetComponent<RectTransform>();
-            float x0 = (float)ci / cellCount + cellGapX;
-            float x1 = (float)(ci + 1) / cellCount - cellGapX;
-            crt.anchorMin = new Vector2(x0, 0.5f);
-            crt.anchorMax = new Vector2(x1, 0.5f);
+            crt.anchorMin = new Vector2(0.5f, 0.5f);
+            crt.anchorMax = new Vector2(0.5f, 0.5f);
             crt.pivot = new Vector2(0.5f, 0.5f);
-            crt.anchoredPosition = Vector2.zero;
-            crt.sizeDelta = new Vector2(0f, cellH);
+            crt.anchoredPosition = new Vector2(posX, 0f);
+            crt.sizeDelta = new Vector2(cellW, cellH);
 
             float cellIconSize = isCenter ? iconSizeCenter : iconSizeNormal;
             float cellLabelFont = isCenter ? cellLabelFontNormal + 1 : cellLabelFontNormal;
