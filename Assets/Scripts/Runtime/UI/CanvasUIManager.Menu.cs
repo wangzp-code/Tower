@@ -565,8 +565,8 @@ public partial class CanvasUIManager
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
         // 图标尺寸 - 使用设计令牌
-        float iconSizeNormal = 13f;  // 原22 ×0.6
-        float iconSizeCenter = 17f;  // 原28 ×0.6
+        float iconSizeNormal = 10f;
+        float iconSizeCenter = 13f;
 
         for (int ni = 0; ni < navNames.Length; ni++)
         {
@@ -1128,10 +1128,10 @@ public partial class CanvasUIManager
         var tex = !string.IsNullOrEmpty(texName) ? LoadTex("UI/" + texName) : null;
 
         // 使用设计令牌 - 基于参考分辨率 (540x960)
-        float btnSize = 26f;  // 原44 ×0.6
+        float btnSize = 22f;
         float labelH = UIDesignTokens.Component.SideLabelH;
         float labelFontSize = UIDesignTokens.Component.SideLabelFont;
-        float iconSize = 22f;  // 原36 ×0.6
+        float iconSize = 17f;
         float padXS = UIDesignTokens.Space.XS;
         float padS = UIDesignTokens.Space.S;
 
@@ -1182,11 +1182,14 @@ public partial class CanvasUIManager
         {
             var iconWrap = new GameObject("IconWrap", typeof(RectTransform), typeof(LayoutElement));
             iconWrap.transform.SetParent(btn.transform, false);
-            var wrapLE = iconWrap.GetComponent<LayoutElement>();
-            wrapLE.preferredHeight = iconSize;
-            wrapLE.preferredWidth = iconSize;
-            wrapLE.minHeight = iconSize;
-            wrapLE.minWidth = iconSize;
+            // 关键修复: btn 没有 LayoutGroup, LayoutElement 会被忽略
+            // 必须直接设置 sizeDelta, 否则图标卡在默认 100x100
+            var wrapRT = iconWrap.GetComponent<RectTransform>();
+            wrapRT.anchorMin = new Vector2(0.5f, 0.5f);
+            wrapRT.anchorMax = new Vector2(0.5f, 0.5f);
+            wrapRT.pivot = new Vector2(0.5f, 0.5f);
+            wrapRT.anchoredPosition = Vector2.zero;
+            wrapRT.sizeDelta = new Vector2(iconSize, iconSize);
             BuildAspectIcon(iconWrap.transform, tex, (int)padXS);
         }
         else
