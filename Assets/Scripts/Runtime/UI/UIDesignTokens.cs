@@ -40,33 +40,33 @@ public static class UIDesignTokens
     public static class Icon
     {
         // 导航栏图标
-        public const float NavNormal = 24f;    // 普通导航图标
-        public const float NavCenter = 30f;    // 中心导航图标（闯塔）
+        public const float NavNormal = 14f;    // 普通导航图标
+        public const float NavCenter = 18f;    // 中心导航图标（闯塔）
         
         // 功能按钮图标
-        public const float SideBtn = 40f;      // 侧边栏按钮
-        public const float Avatar = 40f;       // 头像
+        public const float SideBtn = 24f;      // 侧边栏按钮
+        public const float Avatar = 24f;       // 头像
         
         // 弹窗/对话框图标
-        public const float DialogIcon = 38f;   // 弹窗标题图标
-        public const float BestiaryIcon = 56f; // 图鉴图标
+        public const float DialogIcon = 23f;   // 弹窗标题图标
+        public const float BestiaryIcon = 34f; // 图鉴图标
         
         // 模式选择图标
-        public const float ClassIcon = 54f;    // 职业图标
+        public const float ClassIcon = 32f;    // 职业图标
     }
 
     // ============ 组件尺寸系统 (Component Sizes) ============
     public static class Component
     {
         // 底部导航栏
-        public const float NavBarHeight = 56f;      // 导航栏高度
-        public const float NavLabelH = 12f;         // 导航标签高度
-        public const float NavLabelFont = 9f;       // 导航标签字号
+        public const float NavBarHeight = 34f;      // 导航栏高度
+        public const float NavLabelH = 7f;          // 导航标签高度
+        public const float NavLabelFont = 5f;       // 导航标签字号
         
         // 侧边栏按钮
-        public const float SideBtnSize = 48f;       // 侧边按钮尺寸
-        public const float SideLabelFont = 12f;     // 侧边标签字号
-        public const float SideLabelH = 15f;        // 侧边标签高度
+        public const float SideBtnSize = 29f;       // 侧边按钮尺寸
+        public const float SideLabelFont = 7f;      // 侧边标签字号
+        public const float SideLabelH = 9f;        // 侧边标签高度
         
         // 顶部栏
         public const float TopBarHeight = 70f;      // 顶部栏高度
@@ -74,12 +74,12 @@ public static class UIDesignTokens
         public const float TopBarSmallFont = 9f;    // 顶部栏小字号
         
         // 头像
-        public const float AvatarSize = 40f;        // 头像尺寸
-        public const float AvatarFont = 24f;        // 头像后备字号
+        public const float AvatarSize = 24f;        // 头像尺寸
+        public const float AvatarFont = 14f;        // 头像后备字号
         
         // 弹窗
-        public const float DialogIconSize = 34f;    // 弹窗图标尺寸
-        public const float DialogIconPad = 3f;       // 弹窗图标内边距
+        public const float DialogIconSize = 20f;    // 弹窗图标尺寸
+        public const float DialogIconPad = 2f;       // 弹窗图标内边距
     }
 
     // ============ 布局常量 (Layout Constants) ============
