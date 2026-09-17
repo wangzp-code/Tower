@@ -564,7 +564,7 @@ public partial class CanvasUIManager
         float iconSizeNormal = cellHNormal * 0.66f; // ≈38
         float iconSizeCenter = cellHCenter * 0.70f; // ≈46
         float cellLabelFontNormal = 13f;
-        float cellGapX = 0.008f; // 归一化水平间隔
+        float cellGapX = 0f; // 间隙=0, 完全铺满
 
         // 第一遍: 收集解锁的导航项
         int[] unlocked = new int[navNames.Length];
