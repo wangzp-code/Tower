@@ -565,8 +565,8 @@ public partial class CanvasUIManager
         string[] navFallbackIcons = { null, null, "塔", null, null };
 
         // 图标尺寸 - 使用设计令牌
-        float iconSizeNormal = 8f; // HARDCODED TEST
-        float iconSizeCenter = 10f; // HARDCODED TEST
+        float iconSizeNormal = 13f;  // 原22 ×0.6
+        float iconSizeCenter = 17f;  // 原28 ×0.6
 
         for (int ni = 0; ni < navNames.Length; ni++)
         {
@@ -660,6 +660,9 @@ public partial class CanvasUIManager
 
             navCell.GetComponent<Button>().onClick.AddListener(() => OnNavButtonClick(navName));
         }
+
+        // 强制立即刷新布局, 确保导航栏图标尺寸生效
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(navHL.GetComponent<RectTransform>());
     }
 
     void BuildMenuTopBar(Transform parent)
@@ -1125,10 +1128,10 @@ public partial class CanvasUIManager
         var tex = !string.IsNullOrEmpty(texName) ? LoadTex("UI/" + texName) : null;
 
         // 使用设计令牌 - 基于参考分辨率 (540x960)
-        float btnSize = 10f; // HARDCODED TEST
+        float btnSize = 26f;  // 原44 ×0.6
         float labelH = UIDesignTokens.Component.SideLabelH;
         float labelFontSize = UIDesignTokens.Component.SideLabelFont;
-        float iconSize = 6f; // HARDCODED TEST
+        float iconSize = 22f;  // 原36 ×0.6
         float padXS = UIDesignTokens.Space.XS;
         float padS = UIDesignTokens.Space.S;
 
@@ -1166,11 +1169,14 @@ public partial class CanvasUIManager
         btnGlowOutline.effectColor = new Color(col.r, col.g, col.b, 0.08f);
         btnGlowOutline.effectDistance = new Vector2(UIDesignTokens.Effect.OutlineLarge * 2, UIDesignTokens.Effect.OutlineLarge * 2);
 
-        var btnLE = btn.AddComponent<LayoutElement>(); Debug.Log("TEST: BuildSideButton btnSize=" + btnSize + " iconSize=" + iconSize);
+        var btnLE = btn.AddComponent<LayoutElement>();
         btnLE.preferredWidth = btnSize;
         btnLE.preferredHeight = btnSize;
         btnLE.minWidth = btnSize;
         btnLE.minHeight = btnSize;
+
+        // 强制立即刷新布局, 确保 sizeDelta 生效
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(cRT);
 
         if (tex != null)
         {
