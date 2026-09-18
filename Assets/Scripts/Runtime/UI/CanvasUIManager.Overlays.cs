@@ -215,8 +215,9 @@ public partial class CanvasUIManager
         hRT.offsetMin = new Vector2(15, 0); hRT.offsetMax = new Vector2(-15, -8);
         var hhl = header.GetComponent<HorizontalLayoutGroup>();
         hhl.childAlignment = TextAnchor.MiddleCenter;
-        hhl.childForceExpandWidth = false; hhl.childForceExpandHeight = true;
-        hhl.spacing = 6;
+        hhl.childForceExpandWidth = false; hhl.childForceExpandHeight = false;
+        hhl.childControlWidth = true; hhl.childControlHeight = true;
+        hhl.spacing = 8;
 
         if (!string.IsNullOrEmpty(titleIcon))
         {
