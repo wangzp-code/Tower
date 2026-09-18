@@ -561,8 +561,8 @@ public partial class CanvasUIManager
         // 尺寸 (参考分辨率 540x960) — 全部按栏高比例自适应
         float cellHNormal = navBarHeight * 0.94f;   // ≈64
         float cellHCenter = navBarHeight * 1.00f;   // ≈68
-        float iconSize = cellHNormal * 1.10f;       // ≈70  所有图标统一大小
-        float cellLabelFontNormal = 13f;
+        float iconSize = cellHNormal * 0.72f;       // ≈46  图标<cellH, 不溢出
+        float cellLabelFontNormal = 11f;
         float cellGapX = 0f; // 间隙=0, 完全铺满
 
         // 第一遍: 收集解锁的导航项
@@ -634,8 +634,8 @@ public partial class CanvasUIManager
                 var iconWrap = new GameObject("IconWrap", typeof(RectTransform));
                 iconWrap.transform.SetParent(navCell.transform, false);
                 var wrapRT = iconWrap.GetComponent<RectTransform>();
-                wrapRT.anchorMin = new Vector2(0.5f, 0.68f);
-                wrapRT.anchorMax = new Vector2(0.5f, 0.68f);
+                wrapRT.anchorMin = new Vector2(0.5f, 0.62f);
+                wrapRT.anchorMax = new Vector2(0.5f, 0.62f);
                 wrapRT.pivot = new Vector2(0.5f, 0.5f);
                 wrapRT.anchoredPosition = Vector2.zero;
                 wrapRT.sizeDelta = new Vector2(cellIconSize, cellIconSize);
@@ -649,7 +649,7 @@ public partial class CanvasUIManager
                 var niIcon = TxtAnchored(crt, !string.IsNullOrEmpty(fallbackIcon) ? fallbackIcon : "⚔",
                     isCenter ? 28 : (int)(cellLabelFont + 8),
                     isCenter ? UIDesignTokens.Colors.TextBright : UIDesignTokens.Colors.TextPrimary,
-                    new Vector2(0.5f, 0.68f), new Vector2(0.5f, 0.68f), 0, 0);
+                    new Vector2(0.5f, 0.62f), new Vector2(0.5f, 0.62f), 0, 0);
                 niIcon.fontStyle = FontStyle.Bold;
                 var niIconRT = niIcon.GetComponent<RectTransform>();
                 niIconRT.sizeDelta = new Vector2(fallbackSize, fallbackSize);
@@ -668,7 +668,7 @@ public partial class CanvasUIManager
             // 标签: 点锚点居中偏下 (普通项用主文字色, 保证暗背景可读性)
             var niName = TxtAnchored(crt, navName, (int)cellLabelFont,
                 isCenter ? UIDesignTokens.Colors.Primary : UIDesignTokens.Colors.TextPrimary,
-                new Vector2(0.5f, 0.10f), new Vector2(0.5f, 0.10f), 0, 0);
+                new Vector2(0.5f, 0.18f), new Vector2(0.5f, 0.18f), 0, 0);
             niName.fontStyle = FontStyle.Bold;
 
             navCell.GetComponent<Button>().targetGraphic = navCellImg;
