@@ -226,9 +226,14 @@ public partial class CanvasUIManager
             {
                 var icoWrap = new GameObject("TitleIconWrap", typeof(RectTransform), typeof(LayoutElement));
                 icoWrap.transform.SetParent(header.transform, false);
-                icoWrap.GetComponent<LayoutElement>().preferredWidth = 44;
-                icoWrap.GetComponent<LayoutElement>().preferredHeight = 44;
-
+                var wrapRT = icoWrap.GetComponent<RectTransform>();
+                icoWrap.GetComponent<LayoutElement>().preferredWidth = 40;
+                icoWrap.GetComponent<LayoutElement>().preferredHeight = 40;
+                icoWrap.GetComponent<LayoutElement>().minWidth = 40;
+                icoWrap.GetComponent<LayoutElement>().minHeight = 40;
+                // 强制立即刷新 Layout，确保 rect 正确
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(header.GetComponent<RectTransform>());
+                wrapRT.sizeDelta = new Vector2(40, 40); // 兜底
                 BuildAspectIcon(icoWrap.transform, iconTex, 0, 1); // cover, 0 padding
             }
         }
