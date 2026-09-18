@@ -1156,10 +1156,10 @@ public partial class CanvasUIManager
         var tex = !string.IsNullOrEmpty(texName) ? LoadTex("UI/" + texName) : null;
 
         // 使用设计令牌 - 基于参考分辨率 (540x960)
-        float btnSize = 52f;
+        float btnSize = 56f;
         float labelH = 16f;
         float labelFontSize = 12f;
-        float iconSize = 42f;
+        float iconSize = 50f;
         float padXS = UIDesignTokens.Space.XS;
         float padS = UIDesignTokens.Space.S;
 
@@ -1218,7 +1218,7 @@ public partial class CanvasUIManager
             wrapRT.pivot = new Vector2(0.5f, 0.5f);
             wrapRT.anchoredPosition = Vector2.zero;
             wrapRT.sizeDelta = new Vector2(iconSize, iconSize);
-            BuildAspectIcon(iconWrap.transform, tex, (int)padXS);
+            BuildAspectIcon(iconWrap.transform, tex, 0, 1); // cover, 0 padding
         }
         else
         {

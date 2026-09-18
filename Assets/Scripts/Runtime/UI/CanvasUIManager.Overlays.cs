@@ -225,10 +225,10 @@ public partial class CanvasUIManager
             {
                 var icoWrap = new GameObject("TitleIconWrap", typeof(RectTransform), typeof(LayoutElement));
                 icoWrap.transform.SetParent(header.transform, false);
-                icoWrap.GetComponent<LayoutElement>().preferredWidth = 36;
-                icoWrap.GetComponent<LayoutElement>().preferredHeight = 36;
+                icoWrap.GetComponent<LayoutElement>().preferredWidth = 44;
+                icoWrap.GetComponent<LayoutElement>().preferredHeight = 44;
 
-                BuildAspectIcon(icoWrap.transform, iconTex, 3);
+                BuildAspectIcon(icoWrap.transform, iconTex, 0, 1); // cover, 0 padding
             }
         }
 
