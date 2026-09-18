@@ -45,7 +45,7 @@ public static class ParasiteTowerColorScheme
     public static readonly Color BioHighlight = new Color(0.706f, 0.392f, 1f, 0.15f);
     public static readonly Color Membrane = new Color(0.471f, 0.235f, 0.784f, 0.2f);
     public static readonly Color BioBgPanel = new Color(0.133f, 0.125f, 0.251f, 0.95f);
-    public static readonly Color BioBgCard = new Color(0.102f, 0.055f, 0.18f, 0.9f);
+    public static readonly Color BioBgCard = new Color(0.102f, 0.055f, 0.18f, 0.55f);
     public static readonly Color BioBgDeep = new Color(0.031f, 0.02f, 0.078f);
 
     // 发光效果
@@ -72,14 +72,14 @@ public static class ParasiteTowerColorScheme
     // UI 语义别名（统一 Canvas / System UI 引用）
     public static readonly Color AbyssPurple = new Color(0.65f, 0.25f, 0.95f);
     public static readonly Color AccentGold = new Color(1f, 0.75f, 0.3f);
-    public static readonly Color UiPanelBg = new Color(0.07f, 0.05f, 0.12f);
+    public static readonly Color UiPanelBg = new Color(0.07f, 0.05f, 0.12f, 0.60f);
     public static readonly Color UiCardBg = BioBgCard;
     public static readonly Color UiCardBgHover = new Color(0.16f, 0.10f, 0.25f, 0.95f);
     public static readonly Color UiBtnBg = new Color(0.14f, 0.10f, 0.24f, 0.92f);
     public static readonly Color UiBtnBgHover = new Color(0.18f, 0.16f, 0.30f, 0.95f);
     public static readonly Color UiBorder = BioBorder;
-    public static readonly Color UiOverlayBg = new Color(0.06f, 0.04f, 0.10f, 0.82f);
-    public static readonly Color UiOverlayBgDense = new Color(0.06f, 0.04f, 0.10f, 0.7f);
+    public static readonly Color UiOverlayBg = new Color(0.06f, 0.04f, 0.10f, 0.55f);
+    public static readonly Color UiOverlayBgDense = new Color(0.06f, 0.04f, 0.10f, 0.40f);
     public static readonly Color UiSlateText = new Color(0.5f, 0.53f, 0.64f);
     public static readonly Color UiSteelBlue = InfoBlue;
     public static readonly Color UiMutedPurple = new Color(0.6f, 0.55f, 0.7f);

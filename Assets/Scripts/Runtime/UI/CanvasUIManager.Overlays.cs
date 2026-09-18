@@ -201,9 +201,18 @@ public partial class CanvasUIManager
                 var bgGo = new GameObject("BgImg", typeof(RectTransform), typeof(RawImage), typeof(CanvasGroup));
                 bgGo.transform.SetParent(root, false);
                 Stretch(bgGo);
-                bgGo.GetComponent<RawImage>().texture = tex;
-                ThemeUIHelper.ApplyArtBackgroundTint(bgGo.GetComponent<RawImage>(), 0.55f);
+                var bgRI = bgGo.GetComponent<RawImage>();
+                bgRI.texture = tex;
+                // 轻度紫色调 (0.95) + 高透明度(0.90) = 背景艺术感透出来, 不被黑色吞噬
+                bgRI.color = new Color(0.95f, 0.90f, 1.0f, 0.90f);
                 bgGo.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+                // 只加一层薄暗化, 别全黑
+                var darkGo = new GameObject("BgDarken", typeof(RectTransform), typeof(Image));
+                darkGo.transform.SetParent(root, false);
+                Stretch(darkGo);
+                darkGo.GetComponent<Image>().color = new Color(0.03f, 0.02f, 0.08f, 0.40f);
+                darkGo.GetComponent<Image>().raycastTarget = false;
             }
         }
 
