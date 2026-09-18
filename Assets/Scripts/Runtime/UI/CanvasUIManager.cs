@@ -2840,8 +2840,8 @@ public partial class CanvasUIManager : MonoBehaviour
         go.transform.SetParent(_root, false);
         Stretch(go);
         var image = go.GetComponent<Image>();
-        var defaultBg = ParasiteTowerArtOptimization.UIPolish.PanelStyle.BackgroundColor;
-        image.color = Color.Lerp(defaultBg, bg, 0.65f);
+        // 直接用传入的 bg，不再与 defaultBg Lerp（避免被强制拉暗/拉高alpha）
+        image.color = bg;
         image.raycastTarget = true;
 
         var outline = go.AddComponent<Outline>();
@@ -2849,7 +2849,7 @@ public partial class CanvasUIManager : MonoBehaviour
         outline.effectDistance = new Vector2(1, 1);
 
         var shadow = go.AddComponent<Shadow>();
-        shadow.effectColor = new Color(0, 0, 0, 0.35f);
+        shadow.effectColor = new Color(0, 0, 0, 0.25f);
         shadow.effectDistance = new Vector2(2, -2);
         return go;
     }

@@ -193,6 +193,10 @@ public partial class CanvasUIManager
         var panel = ovl;
         var root = panel.GetComponent<RectTransform>();
 
+        // Panel Image 变成几乎透明，让 BgImg 成为主背景
+        var panelImg = panel.GetComponent<Image>();
+        panelImg.color = new Color(bgColor.r, bgColor.g, bgColor.b, 0.08f);
+
         if (!string.IsNullOrEmpty(bgTexture))
         {
             var tex = LoadTex("UI/" + bgTexture);
@@ -203,15 +207,15 @@ public partial class CanvasUIManager
                 Stretch(bgGo);
                 var bgRI = bgGo.GetComponent<RawImage>();
                 bgRI.texture = tex;
-                // 轻度紫色调 (0.95) + 高透明度(0.90) = 背景艺术感透出来, 不被黑色吞噬
-                bgRI.color = new Color(0.95f, 0.90f, 1.0f, 0.90f);
+                // 背景图直接原色显示 (alpha=1.0), 让艺术感完全透出
+                bgRI.color = new Color(1f, 1f, 1f, 1f);
                 bgGo.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
-                // 只加一层薄暗化, 别全黑
+                // 只加一层极薄的暗化, 保证文字可读
                 var darkGo = new GameObject("BgDarken", typeof(RectTransform), typeof(Image));
                 darkGo.transform.SetParent(root, false);
                 Stretch(darkGo);
-                darkGo.GetComponent<Image>().color = new Color(0.03f, 0.02f, 0.08f, 0.40f);
+                darkGo.GetComponent<Image>().color = new Color(0.02f, 0.015f, 0.05f, 0.25f);
                 darkGo.GetComponent<Image>().raycastTarget = false;
             }
         }
