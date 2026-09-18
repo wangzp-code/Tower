@@ -168,30 +168,20 @@ public class TutorialManager : SingletonBase<TutorialManager>
     {
         switch (stepId)
         {
-            case "move":
-                return "dpad";
+            case "move": return "dpad";
             case "attack":
-                return "attack";
-            case "possess":
-                return "possess";
-            case "new_body":
-                return "attack";
-            case "form":
-                return "fslot-0";
-            case "defend":
-                return "defend";
-            case "evolution":
-                return "evolution";
-            case "ultimate":
-                return "btn-ultimate";
-            case "shop":
-                return "save";
-            case "anchor":
-                return "anchor-bar";
-            case "signature":
-                return "menu";
-            default:
-                return null;
+            case "new_body": return "attack";
+            case "possess": return "possess";
+            case "form": return "fslot-0";
+            case "defend": return "defend";
+            case "evolution": return "evolution";
+            case "ultimate": return "btn-ultimate";
+            case "shop": return "save";
+            case "anchor": return "anchor-bar";
+            case "signature": return "menu";
+            case "inspect": return "menu";
+            case "pollution": return "anchor-bar";
+            default: return null;
         }
     }
     
@@ -232,6 +222,7 @@ public class TutorialManager : SingletonBase<TutorialManager>
         
         string message = $"【{step.title}】{step.desc.Replace("\n", " ")}";
         ShowContextHint(message, 3f);
+        ShowButtonGuide(step); // 补齐: 也触发 👋 手势
         OnTutorialStepChanged?.Invoke(step);
     }
 

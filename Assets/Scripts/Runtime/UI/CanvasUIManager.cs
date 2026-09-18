@@ -4338,7 +4338,7 @@ public partial class CanvasUIManager : MonoBehaviour
         toastGo.layer = _toastContainer.layer;
 
         var toastRT = toastGo.GetComponent<RectTransform>();
-        toastRT.sizeDelta = new Vector2(400f, 32f);
+        toastRT.sizeDelta = new Vector2(300f, 26f);
 
         var toastImg = toastGo.GetComponent<Image>();
         toastImg.color = new Color(0.04f, 0.03f, 0.08f, 0.92f);
@@ -4438,7 +4438,7 @@ public partial class CanvasUIManager : MonoBehaviour
         if (_guideBubble == null) return;
         
         _guideBubble.SetActive(true);
-        _guideBubbleText.text = message;
+        // 手势模式: 无需文字, 👋 直接指向目标
         _guideFindRetries = 0;
         
         // 初始缩放0，淡入动画
@@ -4475,106 +4475,95 @@ public partial class CanvasUIManager : MonoBehaviour
         {
             _guideBubble.SetActive(false);
         }
-        if (_guideBubbleArrow != null)
-        {
-            _guideBubbleArrow.gameObject.SetActive(false);
-        }
         _guideTargetId = null;
     }
     
     System.Collections.IEnumerator GuideAnimationRoutine(float duration)
     {
-        // 淡入缩放
+        // 淡入
         float t = 0;
-        while (t < 0.3f)
+        while (t < 0.25f)
         {
             t += Time.deltaTime;
-            float k = Mathf.Clamp01(t / 0.3f);
+            float k = Mathf.Clamp01(t / 0.25f);
             _guideBubbleRT.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, k);
             var cg = _guideBubble.GetComponent<CanvasGroup>();
             if (cg != null) cg.alpha = k;
             UpdateGuidePosition();
             yield return null;
         }
-        
-        // 保持显示
+
+        // 保持: 上下弹跳 + 轻微缩放脉冲
         float remainTime = duration;
         while (remainTime > 0)
         {
             remainTime -= Time.deltaTime;
             UpdateGuidePosition();
-            // 脉冲呼吸效果
-            float pulse = 1f + 0.05f * Mathf.Sin(Time.time * 4f);
+            // 弹跳: 偏移 0~14px, 频率 3Hz
+            float bounce = Mathf.Abs(Mathf.Sin(Time.time * 3f)) * 14f;
+            _guideBubbleRT.localPosition = new Vector3(
+                _guideBubbleRT.localPosition.x,
+                _guideBubbleRT.localPosition.y + bounce,
+                0);
+            float pulse = 1f + 0.08f * Mathf.Sin(Time.time * 3f);
             _guideBubbleRT.localScale = Vector3.one * pulse;
             yield return null;
         }
-        
+
         // 淡出
         t = 0;
-        while (t < 0.3f)
+        while (t < 0.25f)
         {
             t += Time.deltaTime;
-            float k = Mathf.Clamp01(t / 0.3f);
+            float k = Mathf.Clamp01(t / 0.25f);
             var cg = _guideBubble.GetComponent<CanvasGroup>();
             if (cg != null) cg.alpha = 1f - k;
-            _guideBubbleRT.localScale = Vector3.one * (1f - 0.1f * k);
+            _guideBubbleRT.localScale = Vector3.one * (1f - 0.15f * k);
             yield return null;
         }
-        
+
         HideGuideBubble();
     }
     
     void UpdateGuidePosition()
     {
         if (_guideBubble == null || string.IsNullOrEmpty(_guideTargetId)) return;
-        
+
         GameObject targetObj = GetGuideTarget(_guideTargetId);
         if (targetObj == null)
         {
-            // 目标暂时不存在，重试几次后再隐藏
             _guideFindRetries++;
             if (_guideFindRetries > MaxGuideFindRetries)
             {
                 if (_guideBubble.activeSelf) _guideBubble.SetActive(false);
-                if (_guideBubbleArrow != null) _guideBubbleArrow.gameObject.SetActive(false);
             }
             else if (!_guideBubble.activeSelf)
             {
-                // 保持引导气泡可见，等待目标出现
                 _guideBubble.SetActive(true);
             }
             return;
         }
-        
-        // 找到目标，重置重试计数
+
         _guideFindRetries = 0;
-        
+
         var targetRT = targetObj.GetComponent<RectTransform>();
         if (targetRT == null) return;
-        
-        // 使用世界坐标转换，确保跨层级正确定位
+
         Vector3[] corners = new Vector3[4];
         targetRT.GetWorldCorners(corners);
         Vector3 worldCenter = (corners[0] + corners[2]) / 2f;
-        
-        // 转换到_root（Canvas SafeArea）的局部坐标
+
         Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, worldCenter);
         Vector2 localPos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             _root as RectTransform,
             screenPoint,
             null, out localPos);
-        
-        // 气泡在目标上方，增加偏移距离
-        float offsetY = 80f;
+
+        // 👋 定位在目标正上方, 距离=目标高度的一半+偏移
+        float targetHalfH = (corners[1].y - corners[0].y) * 0.5f;
+        float offsetY = targetHalfH + 35f; // 紧贴目标上方
         _guideBubbleRT.localPosition = new Vector3(localPos.x, localPos.y + offsetY, 0);
-        
-        // 箭头指向按钮，并显示箭头
-        if (_guideBubbleArrow != null)
-        {
-            _guideBubbleArrow.rectTransform.localPosition = new Vector3(localPos.x, localPos.y + 30f, 0);
-            _guideBubbleArrow.gameObject.SetActive(true);
-        }
     }
     
     GameObject GetGuideTarget(string targetId)
@@ -4654,65 +4643,37 @@ public partial class CanvasUIManager : MonoBehaviour
     {
         if (_guideBubble != null) return;
         if (_root == null) return;
-        
-        _guideBubble = new GameObject("GuideBubble", typeof(RectTransform), typeof(Image), typeof(Outline), typeof(CanvasGroup), typeof(Button));
+
+        // 纯 👋 手势引导: 无文字气泡, 无箭头, 只有一个弹跳的手指图标
+        _guideBubble = new GameObject("GuideHand", typeof(RectTransform), typeof(Text), typeof(Outline), typeof(CanvasGroup));
         _guideBubble.transform.SetParent(_root, false);
         _guideBubble.layer = _root.gameObject.layer;
-        
+
         _guideBubbleRT = _guideBubble.GetComponent<RectTransform>();
-        _guideBubbleRT.sizeDelta = new Vector2(220f, 36f);
+        _guideBubbleRT.sizeDelta = new Vector2(60f, 60f);
         _guideBubbleRT.anchorMin = new Vector2(0.5f, 0.5f);
         _guideBubbleRT.anchorMax = new Vector2(0.5f, 0.5f);
-        _guideBubbleRT.pivot = new Vector2(0.5f, 0);
-        _guideBubbleRT.position = Vector2.zero;
-        
-        var bgImg = _guideBubble.GetComponent<Image>();
-        bgImg.color = new Color(0.04f, 0.03f, 0.08f, 0.95f);
-        bgImg.raycastTarget = true;
-        
+        _guideBubbleRT.pivot = new Vector2(0.5f, 0.5f);
+        _guideBubbleRT.localPosition = Vector3.zero;
+
+        var handTxt = _guideBubble.GetComponent<Text>();
+        handTxt.font = F();
+        handTxt.text = "\uD83D\uDC4B"; // 👋
+        handTxt.fontSize = 44;
+        handTxt.color = new Color(0f, 1f, 0.816f, 1f);
+        handTxt.alignment = TextAnchor.MiddleCenter;
+        handTxt.raycastTarget = false;
+        _guideBubbleText = handTxt;
+
         var outline = _guideBubble.GetComponent<Outline>();
-        outline.effectColor = new Color(0f, 1f, 0.816f, 0.8f);
-        outline.effectDistance = new Vector2(2, -2);
-        
+        outline.effectColor = new Color(0f, 1f, 0.816f, 0.5f);
+        outline.effectDistance = new Vector2(3f, -3f);
+
         var cg = _guideBubble.GetComponent<CanvasGroup>();
         cg.alpha = 0f;
-        cg.blocksRaycasts = true;
-        
-        var btn = _guideBubble.GetComponent<Button>();
-        btn.targetGraphic = bgImg;
-        btn.onClick.AddListener(() => {
-            HideGuideBubble();
-            CompleteGameSystem.Instance?.DismissSoftHint();
-        });
-        
-        // 文字内容
-        var txtGo = new GameObject("Text", typeof(RectTransform), typeof(Text));
-        txtGo.transform.SetParent(_guideBubble.transform, false);
-        var txtRT = txtGo.GetComponent<RectTransform>();
-        txtRT.anchorMin = Vector2.zero;
-        txtRT.anchorMax = Vector2.one;
-        txtRT.offsetMin = new Vector2(12, 0);
-        txtRT.offsetMax = new Vector2(-12, 0);
-        _guideBubbleText = txtGo.GetComponent<Text>();
-        _guideBubbleText.font = F();
-        _guideBubbleText.fontSize = 13;
-        _guideBubbleText.color = new Color(0f, 1f, 0.816f);
-        _guideBubbleText.alignment = TextAnchor.MiddleCenter;
-        _guideBubbleText.horizontalOverflow = HorizontalWrapMode.Wrap;
-        _guideBubbleText.raycastTarget = false;
-        
-        // 箭头
-        var arrowGo = new GameObject("Arrow", typeof(RectTransform), typeof(Image));
-        arrowGo.transform.SetParent(_root, false);
-        _guideBubbleArrow = arrowGo.GetComponent<Image>();
-        _guideBubbleArrow.color = new Color(0f, 1f, 0.816f, 0.9f);
-        _guideBubbleArrow.raycastTarget = false;
-        var arrowRT = arrowGo.GetComponent<RectTransform>();
-        arrowRT.sizeDelta = new Vector2(12f, 12f);
-        _guideBubbleArrow.sprite = CreateTriangleSprite();
-        arrowGo.SetActive(false); // 初始隐藏
-        
-        Debug.Log("[Guide] EnsureGuideBubble created");
+        cg.blocksRaycasts = false;
+
+        Debug.Log("[Guide] EnsureGuideBubble created (hand mode)");
     }
     
     Sprite CreateTriangleSprite()
